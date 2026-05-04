@@ -1,1021 +1,1437 @@
-<!doctype html>
+with open('/home/claude/profile_b64.txt') as f:
+    PROFILE = f.read().strip()
+with open('/home/claude/wedding_b64.txt') as f:
+    WEDDING = f.read().strip()
+
+HTML = r"""<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mustafa Selim Tütüncü • Doğum Günü</title>
-  <style>
-    :root{
-      --bg:#0b0f17;
-      --panel:#101827;
-      --panel2:#0f172a;
-      --text:#e5e7eb;
-      --muted:#9ca3af;
-      --line:rgba(255,255,255,.10);
-      --accent:#60a5fa;
-      --accent2:#34d399;
-      --shadow: 0 20px 60px rgba(0,0,0,.45);
-      --radius: 18px;
-      --radius2: 22px;
-      --max: 1050px;
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mustafa Selim Tütüncü</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@200;300;400;500&family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--font);
-      background:
-        radial-gradient(1000px 600px at 15% 10%, rgba(96,165,250,.20), transparent 60%),
-        radial-gradient(900px 500px at 85% 10%, rgba(52,211,153,.16), transparent 55%),
-        radial-gradient(1100px 700px at 50% 100%, rgba(255,255,255,.06), transparent 60%),
-        var(--bg);
-      color:var(--text);
-      overflow-x:hidden;
-    }
+<style>
+/* ─────────────────────────────────────────
+   THEME TOKENS  (all customisable)
+───────────────────────────────────────── */
+:root {
+  --accent-h: 38;
+  --accent-s: 75%;
+  --accent-l: 42%;
+  --accent:        hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-soft:   hsl(var(--accent-h), 60%, 60%);
+  --accent-pale:   hsl(var(--accent-h), 55%, 78%);
 
-    a{color:inherit}
-    .wrap{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:28px 18px 60px;
-    }
+  --bg-h: 38; --bg-s: 22%; --bg-l: 97%;
+  --bg:   hsl(var(--bg-h), var(--bg-s), var(--bg-l));
+  --bg2:  hsl(var(--bg-h), 18%, 93%);
+  --bg3:  hsl(var(--bg-h), 14%, 89%);
 
-    /* ===== INTRO LOADER ===== */
-    .intro{
-      position:fixed;
-      inset:0;
-      display:grid;
-      place-items:center;
-      background:
-        radial-gradient(1200px 700px at 50% 0%, rgba(96,165,250,.12), transparent 55%),
-        linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.78)),
-        var(--bg);
-      z-index:50;
-    }
-    .intro.hidden{display:none}
+  --text:   hsl(30, 15%, 12%);
+  --text2:  hsl(30, 10%, 30%);
+  --muted:  hsl(30, 8%,  55%);
+  --border: hsl(30, 14%, 82%);
+  --card:   #ffffff;
+  --shadow: rgba(80,55,10,.10);
 
-    .introCard{
-      width:min(860px, calc(100vw - 36px));
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--radius2);
-      box-shadow:var(--shadow);
-      padding:24px 22px 18px;
-      overflow:hidden;
-      position:relative;
-    }
+  --font-display: 'Cormorant Garamond', serif;
+  --font-ui:      'DM Sans', sans-serif;
+  --font-label:   'Rajdhani', sans-serif;
 
-    .introTop{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
-      padding-bottom:14px;
-      border-bottom:1px solid var(--line);
-    }
-    .introTitle{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-    }
-    .introTitle h1{
-      margin:0;
-      font-size:18px;
-      letter-spacing:.2px;
-      font-weight:650;
-    }
-    .introTitle p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.4;
-    }
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.25);
-      padding:8px 10px;
-      border-radius:999px;
-      color:var(--muted);
-      font-size:12px;
-      white-space:nowrap;
-    }
-    .dot{
-      width:8px;height:8px;border-radius:50%;
-      background:var(--accent2);
-      box-shadow:0 0 0 6px rgba(52,211,153,.15);
-    }
+  --brightness: 1;
+  --saturation: 1;
 
-    .trackWrap{padding:18px 0 0}
-    .track{
-      position:relative;
-      height:120px;
-      border-radius:16px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 10px, transparent 10px 20px);
-      border:1px solid var(--line);
-      overflow:hidden;
-    }
-    .track::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(600px 200px at 50% 10%, rgba(96,165,250,.10), transparent 60%),
-        radial-gradient(700px 250px at 30% 100%, rgba(52,211,153,.08), transparent 55%);
-      pointer-events:none;
-    }
-    .lane{
-      position:absolute;
-      left:10px; right:10px;
-      top:50%;
-      height:0;
-      border-top:1px dashed rgba(255,255,255,.18);
-      transform:translateY(-50%);
-    }
+  --loader-bg: #0a0806;
+}
 
-    .finish{
-      position:absolute;
-      top:0; right:18px;
-      width:26px; height:100%;
-      background:
-        repeating-linear-gradient(0deg, rgba(255,255,255,.78) 0 10px, rgba(0,0,0,.40) 10px 20px);
-      opacity:.75;
-      border-left:1px solid rgba(255,255,255,.20);
-      border-right:1px solid rgba(255,255,255,.08);
-    }
+/* ─── GLOBAL ─────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-    .car{
-      position:absolute;
-      left:18px;
-      top:50%;
-      transform:translateY(-50%);
-      width:74px;
-      height:34px;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
-      will-change:transform;
-    }
+html { scroll-behavior: smooth; }
 
-    .progressRow{
-      margin-top:14px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .bar{
-      flex:1;
-      height:10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-      overflow:hidden;
-      position:relative;
-    }
-    .fill{
-      height:100%;
-      width:0%;
-      border-radius:999px;
-      background: linear-gradient(90deg, rgba(96,165,250,.95), rgba(52,211,153,.92));
-      box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
-      transition: width .12s linear;
-    }
-    .pct{
-      width:62px;
-      text-align:right;
-      font-variant-numeric: tabular-nums;
-      color:var(--muted);
-      font-size:12px;
-    }
-    .hint{
-      margin:10px 2px 0;
-      color:var(--muted);
-      font-size:12px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .hint span{opacity:.95}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  overflow-x: hidden;
+  filter: brightness(var(--brightness)) saturate(var(--saturation));
+  transition: filter .4s ease, background .6s ease, color .4s ease;
+}
 
-    /* ===== MAIN SITE ===== */
-    header{
-      margin-top:6px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-    .brand{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-    }
-    .brand h2{
-      margin:0;
-      font-size:22px;
-      font-weight:760;
-      letter-spacing:.2px;
-    }
-    .brand p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.45;
-      max-width:70ch;
-    }
-    .mini{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      color:var(--muted);
-      font-size:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.20);
-      padding:10px 12px;
-      border-radius:999px;
-    }
+/* ═══════════════════════════════════════
+   LOADER
+═══════════════════════════════════════ */
+#loader {
+  position: fixed; inset: 0;
+  background: var(--loader-bg);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
-    .grid{
-      margin-top:22px;
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:16px;
-    }
-    @media (max-width: 920px){
-      .grid{grid-template-columns:1fr}
-    }
+/* Atmospheric background glow */
+.loader-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,120,20,.12) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -55%);
+  animation: glowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glowPulse {
+  0%,100% { opacity: .6; transform: translate(-50%,-55%) scale(1); }
+  50%      { opacity: 1;  transform: translate(-50%,-55%) scale(1.15); }
+}
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
-    .card .in{
-      padding:18px;
-    }
-    .cardTitle{
-      margin:0 0 8px 0;
-      font-size:13px;
-      letter-spacing:.25px;
-      color:var(--muted);
-      text-transform:uppercase;
-    }
+/* Horizontal hairlines */
+.loader-line-top,
+.loader-line-bot {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,155,40,.45), transparent);
+}
+.loader-line-top { top: 40px; }
+.loader-line-bot { bottom: 40px; }
 
-    .profileRow{
-      display:flex;
-      gap:14px;
-      align-items:center;
-    }
-    .avatarBtn{
-      border:0;
-      background:transparent;
-      padding:0;
-      cursor:pointer;
-    }
-    .avatar{
-      width:92px;height:92px;border-radius:50%;
-      object-fit:cover;
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
-      outline:none;
-    }
-    .who{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:5px;
-    }
-    .who strong{
-      font-size:16px;
-      font-weight:760;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .who .meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.4;
-    }
-    .pill{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.22);
-      padding:6px 10px;
-      border-radius:999px;
-    }
+/* Corner marks */
+.loader-corner {
+  position: absolute; width: 24px; height: 24px;
+  border-color: rgba(200,155,40,.3); border-style: solid;
+}
+.loader-corner.tl { top:28px; left:28px; border-width:1px 0 0 1px; }
+.loader-corner.tr { top:28px; right:28px; border-width:1px 1px 0 0; }
+.loader-corner.bl { bottom:28px; left:28px; border-width:0 0 1px 1px; }
+.loader-corner.br { bottom:28px; right:28px; border-width:0 1px 1px 0; }
 
-    .stats{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    .stat{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      border-radius:14px;
-      padding:12px 12px;
-    }
-    .stat .k{
-      color:var(--muted);
-      font-size:11px;
-      letter-spacing:.25px;
-      text-transform:uppercase;
-      margin-bottom:6px;
-    }
-    .stat .v{
-      font-size:14px;
-      font-weight:720;
-      letter-spacing:.2px;
-    }
-    .stat .s{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.35;
-    }
+/* Crest */
+.loader-crest {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  margin-bottom: 56px;
+  animation: crestReveal 1.4s cubic-bezier(.215,.61,.355,1) forwards;
+  opacity: 0;
+}
+@keyframes crestReveal {
+  0%   { opacity:0; transform:translateY(24px) scale(.96); }
+  100% { opacity:1; transform:translateY(0) scale(1); }
+}
 
-    .content{
-      display:grid;
-      gap:16px;
-    }
-    .hero{
-      padding:18px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .hero h3{
-      margin:0;
-      font-size:18px;
-      font-weight:760;
-    }
-    .hero p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.55;
-      max-width:80ch;
-    }
+.crest-mono {
+  font-family: 'Cinzel', serif;
+  font-size: 68px; font-weight: 600;
+  letter-spacing: 10px;
+  background: linear-gradient(135deg, #c8960a 0%, #f0c84a 45%, #c8960a 80%, #e8a820 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(200,150,10,.3));
+  line-height: 1;
+}
 
-    .section{
-      padding:18px;
-      display:grid;
-      gap:12px;
-    }
-    .list{
-      display:grid;
-      gap:10px;
-    }
-    .item{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      border-radius:14px;
-      padding:12px;
-    }
-    .ico{
-      width:34px;height:34px;border-radius:12px;
-      display:grid;place-items:center;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      flex:0 0 auto;
-    }
-    .item b{display:block;font-size:13px}
-    .item span{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin-top:3px}
+.crest-ornament {
+  display: flex; align-items: center; gap: 14px; width: 260px;
+}
+.crest-ornament span { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(200,155,40,.5),transparent); }
+.crest-ornament-diamond {
+  width:7px; height:7px;
+  background: #c8960a;
+  transform: rotate(45deg); flex-shrink:0;
+}
 
-    footer{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:12px;
-      opacity:.9;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
+.crest-name {
+  font-family: var(--font-label);
+  font-size: 10px; letter-spacing: 7px;
+  color: rgba(200,155,40,.55);
+  text-transform: uppercase; font-weight: 400;
+}
 
-    /* ===== BDAY MODAL + CONFETTI ===== */
-    .bday{
-      position:fixed;
-      inset:0;
-      display:none;
-      z-index:60;
-      background:rgba(0,0,0,.55);
-      backdrop-filter: blur(6px);
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
-    .bday.show{display:flex}
-    .bdayCard{
-      width:min(720px, calc(100vw - 36px));
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.16);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
-    .bdayCard .top{
-      padding:18px 18px 12px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .bdayCard h4{
-      margin:0;
-      font-size:16px;
-      font-weight:820;
-      letter-spacing:.2px;
-    }
-    .closeBtn{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.25);
-      color:var(--text);
-      border-radius:12px;
-      padding:8px 10px;
-      cursor:pointer;
-      font-size:12px;
-    }
-    .bdayCard .body{
-      padding:16px 18px 18px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.55;
-    }
-    #confetti{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:59;
-      display:none;
-    }
-    #confetti.show{display:block}
+/* Race track block */
+.loader-track-block {
+  width: 660px; max-width: 88vw;
+  animation: crestReveal 1.2s .5s cubic-bezier(.215,.61,.355,1) forwards;
+  opacity: 0;
+}
 
-    /* ===== EASTER EGG OVERLAY ===== */
-    .overlay{
-      position:fixed;
-      inset:0;
-      display:none;
-      z-index:70;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.72);
-      backdrop-filter: blur(8px);
-      padding:18px;
-    }
-    .overlay.show{display:flex}
-    .overlayCard{
-      width:min(980px, calc(100vw - 36px));
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.16);
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .overlayTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:14px 16px;
-      border-bottom:1px solid var(--line);
-    }
-    .overlayTop b{font-size:13px}
-    .overlayBody{
-      padding:12px;
-      display:grid;
-      gap:10px;
-    }
-    .overlayBody img{
-      width:100%;
-      height:auto;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-    }
+.track-label {
+  font-family: var(--font-label);
+  font-size: 8px; letter-spacing: 6px;
+  color: rgba(160,130,50,.5);
+  text-transform: uppercase; text-align: center;
+  margin-bottom: 24px;
+}
 
-    /* Subtle fade-in for main */
-    .main{
-      opacity:0;
-      transform: translateY(10px);
-      transition: opacity .55s ease, transform .55s ease;
-    }
-    .main.ready{
-      opacity:1;
-      transform:none;
-    }
-  </style>
+/* The single race strip */
+.race-strip {
+  position: relative;
+  height: 88px;
+  margin-bottom: 32px;
+}
+
+/* Road surface */
+.road-surface {
+  position: absolute; bottom:0; left:0; right:0; height:28px;
+  background: linear-gradient(to bottom, #111008 0%, #0c0a06 100%);
+  border-top: 1px solid #1e1c14;
+  border-bottom: 1px solid #0a0806;
+}
+
+/* Lane markings */
+.road-center {
+  position: absolute; bottom:13px; left:0; right:0; height:2px;
+  background: repeating-linear-gradient(90deg,
+    rgba(255,255,255,.07) 0px, rgba(255,255,255,.07) 14px,
+    transparent 14px, transparent 28px);
+}
+
+/* Progress fill on road */
+.road-fill {
+  position: absolute; bottom:0; left:0; height:28px; width:0%;
+  background: linear-gradient(90deg, rgba(176,58,46,.25), rgba(200,150,10,.15));
+  border-top: 1px solid rgba(200,150,10,.2);
+  transition: width .08s linear;
+}
+
+/* Finish line */
+.finish-line {
+  position: absolute; right:0; top:0; bottom:0; width:22px;
+  background: repeating-conic-gradient(#1e1c12 0% 25%, #151310 0% 50%) 0 0 / 11px 11px;
+  opacity:.35;
+}
+
+/* Speed lines behind car */
+.speed-lines {
+  position: absolute; bottom:14px; left:0%; width:60px; height:4px;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(200,150,10,.08), rgba(200,150,10,.3));
+  transition: left .08s linear;
+  pointer-events: none;
+}
+
+/* F1 Car */
+.f1car {
+  position: absolute; bottom:22px; left:0%;
+  width:82px;
+  transform: translateX(-50%);
+  transition: left .08s linear;
+  filter: drop-shadow(0 2px 12px rgba(176,58,46,.6)) drop-shadow(0 0 4px rgba(200,150,10,.3));
+}
+
+/* Progress bar */
+.prog-bar-wrap { position: relative; }
+.prog-bar-track {
+  height: 3px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  position: relative; overflow: hidden;
+}
+.prog-bar-fill {
+  height:100%; width:0%;
+  background: linear-gradient(90deg, #b03a2e, #c8960a, #f0c840);
+  transition: width .08s linear;
+  box-shadow: 0 0 12px rgba(200,150,10,.4);
+}
+.prog-bar-sheen {
+  position:absolute; top:-2px; bottom:-2px; width:50px;
+  background: linear-gradient(90deg, transparent, rgba(240,200,64,.5), transparent);
+  left:-50px;
+  animation: sheenMove 2.4s linear infinite;
+}
+@keyframes sheenMove { to { left:110%; } }
+
+.prog-meta {
+  display:flex; justify-content:space-between; align-items:center; margin-top:10px;
+}
+.prog-status {
+  font-family: var(--font-label);
+  font-size:8px; letter-spacing:4px; color:rgba(160,130,50,.5);
+  text-transform:uppercase;
+}
+.prog-pct {
+  font-family:'Playfair Display',serif;
+  font-size:28px; font-weight:400; font-style:italic;
+  color: rgba(200,150,10,.8); letter-spacing:1px;
+}
+
+.prog-msg {
+  font-family: var(--font-label);
+  font-size:8px; letter-spacing:5px; color:rgba(80,65,20,.5);
+  text-transform:uppercase; text-align:center; margin-top:24px;
+  transition: color .5s, opacity .5s;
+}
+.prog-msg.lit { color:rgba(160,130,50,.6); }
+
+/* ═══════════════════════════════════════
+   SETTINGS PANEL
+═══════════════════════════════════════ */
+#settings-btn {
+  position: fixed; top:20px; right:20px; z-index:8500;
+  width:42px; height:42px; border-radius:50%;
+  background: var(--card); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:0 4px 20px var(--shadow);
+  transition: border-color .3s, transform .4s, box-shadow .3s;
+  backdrop-filter: blur(12px);
+}
+#settings-btn:hover {
+  border-color:var(--accent);
+  box-shadow:0 4px 24px rgba(0,0,0,.15);
+}
+#settings-btn svg {
+  transition: transform .6s cubic-bezier(.215,.61,.355,1);
+}
+#settings-btn.open svg { transform:rotate(90deg); }
+
+#settings-panel {
+  position: fixed; top:0; right:0; bottom:0;
+  width:320px; max-width:90vw;
+  background: var(--card);
+  border-left:1px solid var(--border);
+  z-index:8400;
+  transform: translateX(100%);
+  transition: transform .45s cubic-bezier(.215,.61,.355,1);
+  overflow-y:auto;
+  box-shadow:-8px 0 40px rgba(0,0,0,.12);
+}
+#settings-panel.open { transform:translateX(0); }
+
+.sp-header {
+  padding:28px 24px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+}
+.sp-title {
+  font-family: var(--font-label);
+  font-size:10px; letter-spacing:5px; text-transform:uppercase;
+  color:var(--muted); font-weight:500;
+}
+
+.sp-section { padding:20px 24px; border-bottom:1px solid var(--border); }
+.sp-section-title {
+  font-family: var(--font-label);
+  font-size:8px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; font-weight:500;
+}
+
+/* Preset palettes */
+.palette-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+}
+.palette-swatch {
+  aspect-ratio:1; border-radius:6px; cursor:pointer;
+  border:2px solid transparent;
+  transition:transform .2s, border-color .2s, box-shadow .2s;
+  position:relative; overflow:hidden;
+}
+.palette-swatch.active { border-color:var(--text); box-shadow:0 0 0 1px var(--text); }
+.palette-swatch:hover { transform:scale(1.08); }
+.palette-swatch span {
+  position:absolute; inset:0; display:flex; align-items:flex-end;
+  padding:3px; font-size:6px; letter-spacing:1px;
+  font-family:var(--font-label); color:rgba(255,255,255,.7);
+  text-shadow:0 1px 3px rgba(0,0,0,.5);
+  text-transform:uppercase;
+}
+
+/* Sliders */
+.sp-row { margin-bottom:16px; }
+.sp-row-label {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:8px;
+}
+.sp-row-name {
+  font-family:var(--font-label);
+  font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--text2);
+}
+.sp-row-val {
+  font-family:'Playfair Display',serif;
+  font-size:16px; font-style:italic; color:var(--accent);
+}
+input[type=range] {
+  width:100%; height:3px; border-radius:2px;
+  background: var(--border); outline:none;
+  -webkit-appearance:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+  background:var(--accent); cursor:pointer;
+  box-shadow:0 0 0 3px rgba(0,0,0,.08);
+  transition:transform .2s;
+}
+input[type=range]:hover::-webkit-slider-thumb { transform:scale(1.3); }
+
+/* Font selector */
+.font-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.font-btn {
+  padding:10px 8px; border:1px solid var(--border);
+  background:var(--bg2); cursor:pointer; text-align:center;
+  transition:border-color .2s, background .2s; border-radius:4px;
+  font-size:13px; color:var(--text2);
+}
+.font-btn.active { border-color:var(--accent); background:#fff; color:var(--text); }
+.font-btn:hover { border-color:var(--accent-pale); }
+
+/* Reset btn */
+.sp-reset {
+  width:100%; margin:20px 24px 24px; width:calc(100% - 48px);
+  padding:11px; border:1px solid var(--border);
+  background:none; cursor:pointer; font-family:var(--font-label);
+  font-size:9px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--muted); transition:border-color .3s, color .3s;
+}
+.sp-reset:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ═══════════════════════════════════════
+   MAIN SITE
+═══════════════════════════════════════ */
+#main-site { display:none; opacity:0; }
+#main-site.visible { display:block; animation:siteReveal 1.6s ease forwards; }
+@keyframes siteReveal { from{opacity:0;} to{opacity:1;} }
+
+/* ─── HERO ─────────────────────────── */
+.hero {
+  position:relative; min-height:100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:100px 24px 80px;
+  overflow:hidden;
+}
+
+/* Animated gradient mesh background */
+.hero-bg {
+  position:absolute; inset:0; z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%,
+      hsl(var(--accent-h),60%,92%) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 80% 80%,
+      hsl(calc(var(--accent-h) + 20),50%,90%) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 50%,
+      hsl(var(--accent-h),40%,96%) 0%, transparent 70%),
+    var(--bg);
+  animation: meshDrift 18s ease-in-out infinite alternate;
+}
+@keyframes meshDrift {
+  0%   { background-position: 0% 0%; filter: hue-rotate(0deg); }
+  100% { background-position: 3% 3%; filter: hue-rotate(8deg); }
+}
+
+/* Fine grid overlay */
+.hero-grid {
+  position:absolute; inset:0; z-index:1;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size:72px 72px;
+  opacity:.35;
+  mask-image:radial-gradient(ellipse at center, black 20%, transparent 68%);
+}
+
+.hero-topline {
+  position:absolute; top:0; left:0; right:0; height:2px; z-index:2;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:.8;
+}
+
+.hero-content { position:relative; z-index:3; }
+
+/* Profile */
+.profile-outer {
+  position:relative; width:158px; height:158px; margin:0 auto 36px;
+  cursor:pointer;
+  filter: drop-shadow(0 8px 32px rgba(0,0,0,.12));
+}
+.profile-ring {
+  position:absolute; inset:-3px; border-radius:50%;
+  background:conic-gradient(
+    var(--accent) 0deg,
+    var(--accent-soft) 90deg,
+    var(--accent-pale) 180deg,
+    var(--accent-soft) 270deg,
+    var(--accent) 360deg
+  );
+  animation:ringRotate 7s linear infinite; z-index:0;
+}
+@keyframes ringRotate { to{transform:rotate(360deg);} }
+.profile-mask {
+  position:absolute; inset:3px; border-radius:50%;
+  background:var(--bg); z-index:1;
+}
+.profile-img {
+  position:absolute; inset:7px; border-radius:50%;
+  object-fit:cover; z-index:2;
+  width:calc(100% - 14px); height:calc(100% - 14px);
+  transition: transform .5s ease;
+}
+.profile-outer:hover .profile-img { transform:scale(1.04); }
+.profile-badge {
+  position:absolute; bottom:6px; right:6px; z-index:3;
+  width:24px; height:24px; border-radius:50%;
+  background:var(--accent); border:3px solid var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; color:#fff; font-weight:600;
+  transition:transform .3s;
+}
+.profile-outer:hover .profile-badge { transform:scale(1.2); }
+
+/* Eyebrow */
+.hero-eyebrow {
+  font-family:var(--font-label);
+  font-size:9px; letter-spacing:8px; color:var(--accent);
+  text-transform:uppercase; font-weight:400; margin-bottom:18px;
+  opacity:.85;
+}
+
+/* Name */
+.hero-name {
+  font-family:var(--font-display);
+  font-size:clamp(38px,9vw,76px); font-weight:300;
+  letter-spacing:3px; line-height:1.1; color:var(--text);
+  margin-bottom:22px;
+}
+.hero-name em { font-style:italic; color:var(--accent); }
+
+/* Ornament divider */
+.ornament {
+  display:flex; align-items:center; gap:16px;
+  margin:20px auto 22px; width:300px; max-width:88vw;
+}
+.ornament hr { flex:1; border:none; border-top:1px solid var(--border); }
+.ornament-gem {
+  width:7px; height:7px; background:var(--accent);
+  transform:rotate(45deg); flex-shrink:0;
+  box-shadow:0 0 8px var(--accent-pale);
+}
+
+.hero-sub {
+  font-size:10px; letter-spacing:4px; color:var(--muted);
+  text-transform:uppercase; font-weight:300; line-height:2.3;
+}
+.hero-sub strong { color:var(--text2); font-weight:500; }
+
+.scroll-cue {
+  position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:9px; z-index:3;
+}
+.scroll-cue-label {
+  font-family:var(--font-label);
+  font-size:7px; letter-spacing:4px; color:var(--muted); text-transform:uppercase;
+}
+.scroll-line {
+  width:1px; height:44px;
+  background:linear-gradient(to bottom,var(--accent),transparent);
+  animation:scrollPulse 2.2s ease-in-out infinite;
+}
+@keyframes scrollPulse { 0%,100%{opacity:.25;transform:scaleY(.6);} 50%{opacity:1;transform:scaleY(1);} }
+
+/* ─── SECTIONS ──────────────────────── */
+.section {
+  max-width:880px; margin:0 auto;
+  padding:80px 28px;
+  border-bottom:1px solid var(--border);
+  opacity:0; transform:translateY(24px);
+  transition:opacity .8s ease, transform .8s ease;
+}
+.section.visible { opacity:1; transform:translateY(0); }
+
+.sec-head {
+  display:flex; align-items:center; gap:18px; margin-bottom:48px;
+}
+.sec-num {
+  font-family:var(--font-display);
+  font-size:11px; font-style:italic; color:var(--accent); letter-spacing:2px; flex-shrink:0;
+}
+.sec-title {
+  font-family:var(--font-label);
+  font-size:8px; letter-spacing:6px; text-transform:uppercase;
+  color:var(--muted); font-weight:400; flex-shrink:0;
+}
+.sec-rule { flex:1; height:1px; background:var(--border); }
+
+/* ─── INFO GRID ─────────────────────── */
+.info-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(195px,1fr));
+  gap:1px; background:var(--border);
+  border:1px solid var(--border);
+  box-shadow:0 6px 32px var(--shadow);
+}
+.info-cell {
+  background:var(--card); padding:30px 26px; position:relative;
+  transition:background .3s;
+}
+.info-cell:hover { background:var(--bg); }
+.info-cell::before {
+  content:''; position:absolute; top:0; left:0;
+  width:2px; height:0; background:var(--accent);
+  transition:height .4s ease;
+}
+.info-cell:hover::before { height:100%; }
+.info-label {
+  font-family:var(--font-label);
+  font-size:7px; letter-spacing:4px; color:var(--muted); text-transform:uppercase;
+  margin-bottom:10px; font-weight:400;
+}
+.info-value {
+  font-family:var(--font-display);
+  font-size:22px; font-weight:400; color:var(--text2); line-height:1.3;
+}
+.info-value.accent-val { color:var(--accent); font-size:36px; }
+
+/* ─── SKILLS ─────────────────────────  */
+.skills-wrap { display:flex; flex-wrap:wrap; gap:10px; }
+.skill-tag {
+  border:1px solid var(--border); padding:12px 24px;
+  font-family:var(--font-label);
+  font-size:9px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--muted); font-weight:400; background:var(--card);
+  transition:border-color .3s, color .3s, background .3s, transform .25s;
+  cursor:default; box-shadow:0 2px 10px var(--shadow);
+}
+.skill-tag:hover {
+  border-color:var(--accent); color:var(--text2);
+  background:var(--bg); transform:translateY(-2px);
+}
+.skill-dot {
+  display:inline-block; width:5px; height:5px; border-radius:50%;
+  background:var(--accent); margin-right:10px; vertical-align:middle;
+}
+
+/* ─── F1 GRID ────────────────────────  */
+.f1-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:1px; background:var(--border); border:1px solid var(--border);
+  box-shadow:0 6px 32px var(--shadow);
+}
+.f1-team {
+  background:var(--card); padding:20px 18px;
+  display:flex; align-items:center; gap:12px; transition:background .2s;
+}
+.f1-team:hover { background:var(--bg); }
+.f1-bar { width:3px; height:32px; border-radius:2px; flex-shrink:0; }
+.f1-name {
+  font-family:var(--font-label);
+  font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); font-weight:400;
+}
+
+/* ─── SOCIAL ─────────────────────────  */
+.social-col {
+  display:flex; flex-direction:column; gap:1px;
+  background:var(--border); border:1px solid var(--border);
+  box-shadow:0 6px 32px var(--shadow);
+}
+.social-link {
+  background:var(--card); padding:26px 30px;
+  display:flex; align-items:center; justify-content:space-between;
+  text-decoration:none; color:var(--text);
+  transition:background .3s, padding-left .3s; position:relative; overflow:hidden;
+}
+.social-link:hover { background:var(--bg); padding-left:38px; }
+.social-link::before {
+  content:''; position:absolute; top:0; left:0; bottom:0; width:3px;
+  transform:scaleY(0); transition:transform .35s; transform-origin:bottom;
+}
+.social-link:hover::before { transform:scaleY(1); }
+.social-link.ig::before { background:linear-gradient(to bottom,#f09433,#dc2743,#bc1888); }
+.social-link.li::before { background:#0077b5; }
+.sl-left { display:flex; align-items:center; gap:20px; }
+.sl-icon {
+  width:44px; height:44px; border:1px solid var(--border); border-radius:4px;
+  display:flex; align-items:center; justify-content:center; background:var(--bg2);
+  transition:border-color .3s, background .3s; flex-shrink:0;
+}
+.social-link:hover .sl-icon { border-color:var(--accent); background:var(--card); }
+.sl-platform {
+  font-family:var(--font-label);
+  font-size:7px; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:4px;
+}
+.sl-handle { font-family:var(--font-display); font-size:20px; font-weight:300; color:var(--text2); }
+.sl-arrow { font-size:14px; color:var(--muted); transition:transform .3s, color .3s; }
+.social-link:hover .sl-arrow { transform:translateX(5px); color:var(--accent); }
+
+/* ─── FOOTER ─────────────────────────  */
+footer {
+  text-align:center; padding:56px 24px 48px;
+  border-top:1px solid var(--border); background:var(--card); position:relative;
+}
+footer::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:240px; height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+}
+.f-made {
+  font-family:var(--font-label);
+  font-size:7px; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;
+}
+.f-author { font-family:var(--font-display); font-size:19px; font-style:italic; color:var(--text2); }
+.f-author a { color:inherit; text-decoration:none; border-bottom:1px solid var(--border); transition:border-color .3s,color .3s; }
+.f-author a:hover { color:var(--accent); border-color:var(--accent); }
+
+/* ═══════════════════════════════════════
+   BIRTHDAY OVERLAY
+═══════════════════════════════════════ */
+canvas#confetti-canvas {
+  position:fixed; inset:0; width:100%; height:100%;
+  pointer-events:none; z-index:8000;
+}
+#bday-overlay {
+  display:none; position:fixed; inset:0; z-index:8100;
+  background:rgba(250,246,238,.55); backdrop-filter:blur(3px);
+  align-items:center; justify-content:center;
+}
+#bday-overlay.active { display:flex; }
+
+.bday-card {
+  background:#fff; border:1px solid var(--accent);
+  padding:54px 68px; text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,.14);
+  animation:bdayPop .9s cubic-bezier(.175,.885,.32,1.275) forwards; opacity:0;
+  position:relative; max-width:520px; width:90vw;
+}
+.bday-card::before,.bday-card::after {
+  content:''; position:absolute; width:26px; height:26px;
+  border-color:var(--accent-pale); border-style:solid;
+}
+.bday-card::before { top:-1px; left:-1px; border-width:2px 0 0 2px; }
+.bday-card::after  { bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
+@keyframes bdayPop {
+  from { opacity:0; transform:scale(.82) translateY(20px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+
+.bday-emoji { font-size:44px; display:block; margin-bottom:18px; }
+.bday-sup {
+  font-family:var(--font-label);
+  font-size:8px; letter-spacing:7px; color:var(--accent);
+  text-transform:uppercase; margin-bottom:16px;
+}
+.bday-name {
+  font-family:var(--font-display);
+  font-size:clamp(22px,5vw,38px); font-weight:300;
+  color:var(--text); letter-spacing:2px; line-height:1.35;
+  margin-bottom:28px;
+}
+.bday-age {
+  font-family:var(--font-display);
+  font-size:14px; font-style:italic; color:var(--muted);
+  margin-bottom:28px;
+}
+.bday-close {
+  padding:10px 32px; border:1px solid var(--border);
+  background:none; cursor:pointer;
+  font-family:var(--font-label);
+  font-size:8px; letter-spacing:4px; color:var(--muted); text-transform:uppercase;
+  transition:border-color .3s, color .3s, background .3s;
+}
+.bday-close:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ═══════════════════════════════════════
+   EASTER EGG
+═══════════════════════════════════════ */
+#egg-modal {
+  display:none; position:fixed; inset:0;
+  background:rgba(8,6,4,.94); z-index:9500;
+  align-items:center; justify-content:center; flex-direction:column; gap:22px;
+}
+#egg-modal.open { display:flex; }
+#egg-modal img {
+  max-width:min(88vw,520px); max-height:72vh; object-fit:contain;
+  border:1px solid rgba(180,140,10,.3);
+  animation:eggReveal .5s ease; box-shadow:0 0 80px rgba(0,0,0,.6);
+}
+@keyframes eggReveal { from{opacity:0;transform:scale(.88);} to{opacity:1;transform:scale(1);} }
+.egg-label {
+  font-family:var(--font-label);
+  font-size:8px; letter-spacing:5px; color:rgba(120,100,40,.6); text-transform:uppercase;
+}
+#egg-close {
+  position:absolute; top:26px; right:30px; background:none; border:none;
+  color:rgba(120,100,40,.6); font-size:28px; cursor:pointer;
+  font-family:var(--font-display);
+  transition:color .25s;
+}
+#egg-close:hover { color:rgba(200,160,40,.9); }
+</style>
 </head>
 <body>
 
-  <!-- INTRO LOADER -->
-  <div class="intro" id="intro">
-    <div class="introCard" aria-label="Yükleme ekranı">
-      <div class="introTop">
-        <div class="introTitle">
-          <h1>Selim’in Pit Stop’u</h1>
-          <p>Formula modu açılıyor… araç finişe girince site açılacak.</p>
-        </div>
-        <div class="chip"><span class="dot"></span> Sistem kontrolü</div>
+<!-- ════════ LOADER ════════ -->
+<div id="loader">
+  <div class="loader-glow"></div>
+  <div class="loader-line-top"></div>
+  <div class="loader-line-bot"></div>
+  <div class="loader-corner tl"></div>
+  <div class="loader-corner tr"></div>
+  <div class="loader-corner bl"></div>
+  <div class="loader-corner br"></div>
+
+  <div class="loader-crest">
+    <div class="crest-mono">MST</div>
+    <div class="crest-ornament">
+      <span></span>
+      <div class="crest-ornament-diamond"></div>
+      <span></span>
+    </div>
+    <div class="crest-name">Mustafa Selim Tütüncü</div>
+  </div>
+
+  <div class="loader-track-block">
+    <div class="track-label">Formula 1 · Race Loading</div>
+
+    <div class="race-strip">
+      <div class="finish-line"></div>
+
+      <!-- F1 Car SVG -->
+      <svg class="f1car" id="f1car" viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg">
+        <!-- rear wing vertical -->
+        <rect x="2" y="5" width="14" height="26" rx="2" fill="#7a1510"/>
+        <rect x="0" y="8" width="3" height="20" rx="1" fill="#555"/>
+        <!-- main body -->
+        <rect x="16" y="14" width="90" height="13" rx="3" fill="#c0392b"/>
+        <!-- body bottom detail -->
+        <rect x="28" y="23" width="58" height="5" rx="2" fill="#a52920"/>
+        <!-- nose -->
+        <polygon points="106,15 138,20 106,26" fill="#b03226"/>
+        <!-- cockpit halo arch -->
+        <path d="M54 14 Q66 6 82 14" stroke="#2a2018" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- cockpit -->
+        <rect x="48" y="8" width="34" height="12" rx="3" fill="#180f08"/>
+        <!-- front wing -->
+        <rect x="120" y="16" width="16" height="6" rx="1" fill="#a52920"/>
+        <rect x="124" y="12" width="2" height="14" fill="#555"/>
+        <!-- side pods -->
+        <rect x="42" y="21" width="50" height="7" rx="2" fill="#b03226" opacity=".7"/>
+        <!-- Wheels: rear -->
+        <ellipse cx="30" cy="30" rx="7" ry="7" fill="#1a130a"/>
+        <ellipse cx="30" cy="30" rx="4" ry="4" fill="#2e241a"/>
+        <ellipse cx="30" cy="8"  rx="6" ry="6" fill="#1a130a"/>
+        <ellipse cx="30" cy="8"  rx="3.5" ry="3.5" fill="#2e241a"/>
+        <!-- Wheels: front -->
+        <ellipse cx="98" cy="30" rx="7" ry="7" fill="#1a130a"/>
+        <ellipse cx="98" cy="30" rx="4" ry="4" fill="#2e241a"/>
+        <ellipse cx="98" cy="8"  rx="6" ry="6" fill="#1a130a"/>
+        <ellipse cx="98" cy="8"  rx="3.5" ry="3.5" fill="#2e241a"/>
+        <!-- number board -->
+        <rect x="60" y="18" width="22" height="9" rx="2" fill="rgba(255,255,255,.08)"/>
+        <text x="71" y="26" font-family="Rajdhani,sans-serif" font-size="8" fill="rgba(255,255,255,.5)" text-anchor="middle" font-weight="600">F1</text>
+      </svg>
+
+      <div class="speed-lines" id="speed-lines"></div>
+      <div class="road-surface">
+        <div class="road-center"></div>
+        <div class="road-fill" id="road-fill"></div>
+      </div>
+    </div>
+
+    <!-- single bar -->
+    <div class="prog-bar-wrap">
+      <div class="prog-bar-track">
+        <div class="prog-bar-fill" id="prog-fill"></div>
+        <div class="prog-bar-sheen"></div>
+      </div>
+      <div class="prog-meta">
+        <div class="prog-status" id="prog-status">Sistemler Hazırlanıyor</div>
+        <div class="prog-pct"><span id="prog-pct">0</span>%</div>
+      </div>
+    </div>
+
+    <div class="prog-msg" id="prog-msg">Veri akışı başlatılıyor...</div>
+  </div>
+</div>
+
+<!-- ════════ SETTINGS BTN ════════ -->
+<button id="settings-btn" onclick="toggleSettings()" title="Tema Ayarları" style="display:none">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+</button>
+
+<!-- ════════ SETTINGS PANEL ════════ -->
+<div id="settings-panel">
+  <div class="sp-header">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--muted)">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    <div class="sp-title">Tema Ayarları</div>
+  </div>
+
+  <!-- PALETTES -->
+  <div class="sp-section">
+    <div class="sp-section-title">Renk Paleti</div>
+    <div class="palette-grid" id="palette-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- ACCENT HUE -->
+  <div class="sp-section">
+    <div class="sp-section-title">Vurgu Rengi</div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Ton (Hue)</span>
+        <span class="sp-row-val" id="lbl-hue">38°</span>
+      </div>
+      <input type="range" id="sl-hue" min="0" max="360" value="38" oninput="applyHue(this.value)">
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Doygunluk</span>
+        <span class="sp-row-val" id="lbl-sat">75%</span>
+      </div>
+      <input type="range" id="sl-sat" min="20" max="100" value="75" oninput="applySat(this.value)">
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Açıklık</span>
+        <span class="sp-row-val" id="lbl-lit">42%</span>
+      </div>
+      <input type="range" id="sl-lit" min="20" max="70" value="42" oninput="applyLit(this.value)">
+    </div>
+  </div>
+
+  <!-- BACKGROUND -->
+  <div class="sp-section">
+    <div class="sp-section-title">Arkaplan</div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Ton (Hue)</span>
+        <span class="sp-row-val" id="lbl-bgh">38°</span>
+      </div>
+      <input type="range" id="sl-bgh" min="0" max="360" value="38" oninput="applyBgHue(this.value)">
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Renk Yoğunluğu</span>
+        <span class="sp-row-val" id="lbl-bgs">22%</span>
+      </div>
+      <input type="range" id="sl-bgs" min="0" max="60" value="22" oninput="applyBgSat(this.value)">
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Açıklık</span>
+        <span class="sp-row-val" id="lbl-bgl">97%</span>
+      </div>
+      <input type="range" id="sl-bgl" min="60" max="100" value="97" oninput="applyBgLit(this.value)">
+    </div>
+  </div>
+
+  <!-- DISPLAY -->
+  <div class="sp-section">
+    <div class="sp-section-title">Görüntü</div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Parlaklık</span>
+        <span class="sp-row-val" id="lbl-br">100%</span>
+      </div>
+      <input type="range" id="sl-br" min="60" max="130" value="100" oninput="applyBrightness(this.value)">
+    </div>
+    <div class="sp-row">
+      <div class="sp-row-label">
+        <span class="sp-row-name">Doygunluk</span>
+        <span class="sp-row-val" id="lbl-sat2">100%</span>
+      </div>
+      <input type="range" id="sl-sat2" min="0" max="200" value="100" oninput="applySatFilter(this.value)">
+    </div>
+  </div>
+
+  <!-- FONT -->
+  <div class="sp-section">
+    <div class="sp-section-title">Display Fontu</div>
+    <div class="font-grid" id="font-grid">
+      <button class="font-btn active" style="font-family:'Cormorant Garamond',serif" onclick="applyFont('Cormorant Garamond',this)">Cormorant</button>
+      <button class="font-btn" style="font-family:'Playfair Display',serif" onclick="applyFont('Playfair Display',this)">Playfair</button>
+      <button class="font-btn" style="font-family:'Cinzel',serif" onclick="applyFont('Cinzel',this)">Cinzel</button>
+      <button class="font-btn" style="font-family:'Rajdhani',sans-serif" onclick="applyFont('Rajdhani',this)">Rajdhani</button>
+    </div>
+  </div>
+
+  <button class="sp-reset" onclick="resetTheme()">↺ Varsayılana Döndür</button>
+</div>
+
+<!-- ════════ BIRTHDAY ════════ -->
+<canvas id="confetti-canvas"></canvas>
+<div id="bday-overlay">
+  <div class="bday-card">
+    <span class="bday-emoji">🎂</span>
+    <div class="bday-sup">İyi ki doğdun</div>
+    <div class="bday-name">Mustafa Selim<br>Tütüncü</div>
+    <div class="bday-age" id="bday-age"></div>
+    <button class="bday-close" onclick="closeBday()">Teşekkürler ✦</button>
+  </div>
+</div>
+
+<!-- ════════ EASTER EGG ════════ -->
+<div id="egg-modal">
+  <button id="egg-close" onclick="closeEgg()">✕</button>
+  <img id="egg-img" src="" alt=""/>
+  <div class="egg-label">🤫 Gizli Arşiv</div>
+</div>
+
+<!-- ════════ MAIN SITE ════════ -->
+<div id="main-site">
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-topline"></div>
+
+    <div class="hero-content">
+      <div class="profile-outer" id="profile-wrap" onclick="handleProfileClick()">
+        <div class="profile-ring"></div>
+        <div class="profile-mask"></div>
+        <img class="profile-img" id="profile-img" src="" alt="Mustafa Selim Tütüncü"/>
+        <div class="profile-badge">✦</div>
       </div>
 
-      <div class="trackWrap">
-        <div class="track" id="track">
-          <div class="lane"></div>
-          <div class="finish" aria-hidden="true"></div>
+      <div class="hero-eyebrow">Portfolio · 2026</div>
+      <h1 class="hero-name">Mustafa <em>Selim</em> Tütüncü</h1>
 
-          <!-- Simple F1-ish SVG car with a tiny "F1" mark -->
-          <svg class="car" id="car" viewBox="0 0 180 80" xmlns="http://www.w3.org/2000/svg" aria-label="F1 araç">
-            <defs>
-              <linearGradient id="g" x1="0" x2="1">
-                <stop offset="0" stop-color="rgba(96,165,250,.95)"/>
-                <stop offset="1" stop-color="rgba(52,211,153,.92)"/>
-              </linearGradient>
-            </defs>
-            <!-- rear wing -->
-            <rect x="18" y="22" width="22" height="22" rx="4" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.12)"/>
-            <rect x="12" y="18" width="10" height="30" rx="4" fill="rgba(0,0,0,.35)" />
-            <!-- body -->
-            <path d="M45 20 h58 c14 0 22 7 28 17 l18 0 c7 0 12 5 12 12s-5 12-12 12H46 c-10 0-18-8-18-18 0-11 8-23 17-23z"
-                  fill="url(#g)" stroke="rgba(255,255,255,.12)" stroke-width="2" />
-            <!-- cockpit -->
-            <path d="M78 28 c8-8 22-8 30 0 l6 10 H72z" fill="rgba(0,0,0,.35)" />
-            <!-- nose -->
-            <path d="M154 39 h16 c4 0 7 3 7 7s-3 7-7 7h-20z" fill="rgba(255,255,255,.12)" />
-            <!-- wheels -->
-            <circle cx="58" cy="62" r="12" fill="rgba(0,0,0,.65)" stroke="rgba(255,255,255,.18)"/>
-            <circle cx="130" cy="62" r="12" fill="rgba(0,0,0,.65)" stroke="rgba(255,255,255,.18)"/>
-            <!-- tiny logo -->
-            <text x="106" y="50" font-family="ui-sans-serif,system-ui" font-size="18" font-weight="800" fill="rgba(255,255,255,.88)">F1</text>
-          </svg>
-        </div>
+      <div class="ornament">
+        <hr/><div class="ornament-gem"></div><hr/>
+      </div>
 
-        <div class="progressRow">
-          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="fill" id="fill"></div>
-          </div>
-          <div class="pct" id="pct">0%</div>
-        </div>
+      <div class="hero-sub">
+        <strong>Bilgisayar Mühendisliği</strong><br>
+        Teknoloji Fakültesi · Marmara Üniversitesi
+      </div>
+    </div>
 
-        <div class="hint">
-          <span>İpucu: Profil fotoğrafına birkaç kez tıkla 😉</span>
-          <span id="loaderMsg">Lastikler ısınıyor…</span>
-        </div>
+    <div class="scroll-cue">
+      <div class="scroll-cue-label">Keşfet</div>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- 01 -->
+  <div class="section" data-observe>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <span class="sec-title">Kimlik</span>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="info-label">Ad Soyad</div>
+        <div class="info-value">Mustafa Selim<br>Tütüncü</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Doğum Tarihi</div>
+        <div class="info-value">4 Mayıs 2007</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Yaş</div>
+        <div class="info-value accent-val" id="age-val">19</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Üniversite</div>
+        <div class="info-value">Marmara<br>Üniversitesi</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Fakülte</div>
+        <div class="info-value">Teknoloji<br>Fakültesi</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Bölüm · Sınıf</div>
+        <div class="info-value">Bilgisayar Müh.<br><span style="font-size:14px;color:var(--muted)">1. Sınıf</span></div>
       </div>
     </div>
   </div>
 
-  <!-- CONFETTI CANVAS -->
-  <canvas id="confetti"></canvas>
-
-  <!-- BIRTHDAY POPUP -->
-  <div class="bday" id="bday">
-    <div class="bdayCard" role="dialog" aria-modal="true" aria-label="Doğum günü kutlaması">
-      <div class="top">
-        <h4 id="bdayTitle">Doğum günün kutlu olsun!</h4>
-        <button class="closeBtn" id="bdayClose" type="button">Kapat</button>
-      </div>
-      <div class="body" id="bdayBody">
-        Bugün 4 Mayıs. Pit stop bitti: yeni yaş modu aktif. 🎉
-      </div>
+  <!-- 02 -->
+  <div class="section" data-observe>
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <span class="sec-title">Teknik Yetkinlikler</span>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="skills-wrap">
+      <div class="skill-tag"><span class="skill-dot"></span>C</div>
+      <div class="skill-tag"><span class="skill-dot"></span>C++</div>
+      <div class="skill-tag"><span class="skill-dot"></span>HTML</div>
+      <div class="skill-tag"><span class="skill-dot"></span>CSS</div>
+      <div class="skill-tag"><span class="skill-dot"></span>Arduino</div>
+      <div class="skill-tag"><span class="skill-dot"></span>Algoritma Tasarımı</div>
     </div>
   </div>
 
-  <!-- EASTER EGG OVERLAY -->
-  <div class="overlay" id="egg">
-    <div class="overlayCard">
-      <div class="overlayTop">
-        <b>🕵️ Easter Egg</b>
-        <button class="closeBtn" id="eggClose" type="button">Kapat</button>
-      </div>
-      <div class="overlayBody">
-        <img id="weddingImg" alt="Gelin ve damat fotoğrafı" />
-      </div>
+  <!-- 03 -->
+  <div class="section" data-observe>
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <span class="sec-title">Formula 1</span>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="f1-grid">
+      <div class="f1-team"><div class="f1-bar" style="background:#e8002d"></div><div class="f1-name">Ferrari</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#3671C6"></div><div class="f1-name">Red Bull</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#27F4D2"></div><div class="f1-name">Mercedes</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#FF8000"></div><div class="f1-name">McLaren</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#358C75"></div><div class="f1-name">Aston Martin</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#0093CC"></div><div class="f1-name">Alpine</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#005AFF"></div><div class="f1-name">Williams</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#52E252"></div><div class="f1-name">Kick Sauber</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#B6BABD"></div><div class="f1-name">Haas</div></div>
+      <div class="f1-team"><div class="f1-bar" style="background:#6692FF"></div><div class="f1-name">RB</div></div>
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div class="wrap main" id="main">
-    <header>
-      <div class="brand">
-        <h2>Mustafa Selim Tütüncü</h2>
-        <p>
-          Marmara Üniversitesi <b>Teknoloji Fakültesi</b> • <b>Bilgisayar Mühendisliği</b> (1. sınıf) •
-          Formula tutkusu: <span style="color:rgba(96,165,250,.95);font-weight:700">aktif</span>
-        </p>
-      </div>
-      <div class="mini" id="todayBadge" aria-label="Tarih ve durum">
-        <span>🗓️</span>
-        <span id="todayText">—</span>
-      </div>
-    </header>
-
-    <div class="grid">
-      <!-- Left -->
-      <div class="card">
-        <div class="in">
-          <div class="cardTitle">Profil</div>
-          <div class="profileRow">
-            <button class="avatarBtn" id="avatarBtn" title="Easter egg var…" aria-label="Profil fotoğrafı">
-              <img class="avatar" id="avatar" alt="Selim profil fotoğrafı" />
-            </button>
-
-            <div class="who">
-              <strong>Selim</strong>
-              <div class="meta">
-                <span class="pill" id="agePill">Yaş: —</span>
-                <span class="pill">F1 modu</span>
-                <span class="pill">Marmara</span>
-              </div>
-            </div>
+  <!-- 04 -->
+  <div class="section" data-observe>
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <span class="sec-title">Sosyal Ağlar</span>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="social-col">
+      <a href="https://www.instagram.com/m.selimttnc/" target="_blank" class="social-link ig">
+        <div class="sl-left">
+          <div class="sl-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="2" width="20" height="20" rx="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            </svg>
           </div>
-
-          <div class="stats">
-            <div class="stat">
-              <div class="k">Okul</div>
-              <div class="v">Marmara Üniversitesi</div>
-              <div class="s">Teknoloji Fakültesi</div>
-            </div>
-            <div class="stat">
-              <div class="k">Bölüm</div>
-              <div class="v">Bilgisayar Mühendisliği</div>
-              <div class="s">1. sınıf</div>
-            </div>
-            <div class="stat">
-              <div class="k">Doğum günü</div>
-              <div class="v">4 Mayıs</div>
-              <div class="s">Her yıl otomatik kutlama</div>
-            </div>
-            <div class="stat">
-              <div class="k">Hedef</div>
-              <div class="v">Her sene seviye atla</div>
-              <div class="s">Kod + disiplin + tempo</div>
-            </div>
+          <div>
+            <div class="sl-platform">Instagram</div>
+            <div class="sl-handle">@m.selimttnc</div>
           </div>
         </div>
-      </div>
-
-      <!-- Right -->
-      <div class="card content">
-        <div class="hero">
-          <h3>Bugünün modu: “Bir tık daha hızlı.”</h3>
-          <p>
-            Bu site her 4 Mayıs’ta otomatik olarak doğum günü mesajını açar ve yaş hesabını günceller.
-            Intro’daki Formula sahnesi bittikten sonra içerik görünür.
-          </p>
-        </div>
-
-        <div class="section">
-          <div class="cardTitle">Kısa notlar</div>
-          <div class="list">
-            <div class="item">
-              <div class="ico">🏁</div>
-              <div>
-                <b>F1 Intro</b>
-                <span>Yükleme barı random gider, araç finişe girince site açılır.</span>
-              </div>
-            </div>
-            <div class="item">
-              <div class="ico">🎂</div>
-              <div>
-                <b>4 Mayıs Kutlaması</b>
-                <span>Her 4 Mayıs girişte mesaj + konfeti patlar (otomatik).</span>
-              </div>
-            </div>
-            <div class="item">
-              <div class="ico">🧩</div>
-              <div>
-                <b>Easter Egg</b>
-                <span>Profil fotoğrafına 5 kez hızlı tıkla. (Kapatmak için “Kapat”)</span>
-              </div>
-            </div>
+        <span class="sl-arrow">→</span>
+      </a>
+      <a href="https://tr.linkedin.com/in/mustafa-selim-t%C3%BCt%C3%BCnc%C3%BC-8ba79438b" target="_blank" class="social-link li">
+        <div class="sl-left">
+          <div class="sl-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+              <rect x="2" y="9" width="4" height="12"/>
+              <circle cx="4" cy="4" r="2"/>
+            </svg>
           </div>
-
-          <footer>
-            <span>© Selim • Minimal, temiz, “cafcaf” yok.</span>
-            <span id="yearLine">—</span>
-          </footer>
+          <div>
+            <div class="sl-platform">LinkedIn</div>
+            <div class="sl-handle">Mustafa Selim Tütüncü</div>
+          </div>
         </div>
-      </div>
+        <span class="sl-arrow">→</span>
+      </a>
     </div>
   </div>
 
-  <script>
-    /**********************
-     * 1) AYARLAR
-     **********************/
-    // Doğum yılı bilinmiyorsa burayı düzenle. (Örn: 2006)
-    const BIRTH_YEAR = 2006;      // <-- BURAYI SELİM'İN DOĞUM YILIYLA DEĞİŞTİR
-    const BIRTH_MONTH = 5;        // Mayıs
-    const BIRTH_DAY = 4;
+  <footer>
+    <div class="f-made">Tasarım &amp; Geliştirme</div>
+    <div class="f-author">
+      <a href="https://www.instagram.com/on_r19/" target="_blank">Onur Teryakioğlu</a>
+    </div>
+  </footer>
 
-    // “Bugün doğum günü” mesajı tam ismiyle:
-    const FULL_NAME = "Mustafa Selim Tütüncü";
+</div>
 
-    /**********************
-     * 2) GÖRSELLER (Base64)
-     **********************/
-    // Profil fotoğrafı (senin verdiğin tekli portre)
-    const PROFILE_DATA_URL =
-      "data:image/png;base64,${data_urls[0].split('base64,')[1]}";
+<!-- ════════════════════════════════════
+   JAVASCRIPT
+════════════════════════════════════ -->
+<script>
+// ── IMAGES ──────────────────────────
+var _profile = 'PROFILE_PLACEHOLDER';
+var _wedding = 'WEDDING_PLACEHOLDER';
+document.getElementById('profile-img').src = 'data:image/jpeg;base64,' + _profile;
 
-    // Gelin/damat fotoğrafı (easter egg)
-    const WEDDING_DATA_URL =
-      "data:image/png;base64,${data_urls[1].split('base64,')[1]}";
+// ── AGE ─────────────────────────────
+(function(){
+  var today = new Date();
+  var age = today.getFullYear() - 2007;
+  if (today < new Date(today.getFullYear(), 4, 4)) age--;
+  document.getElementById('age-val').textContent = age;
+  document.getElementById('bday-age').textContent = age + ' yaşına girdin 🎉';
+})();
 
-    /**********************
-     * 3) Tarih/yaş hesabı
-     **********************/
-    function pad2(n){ return String(n).padStart(2,"0"); }
+// ── LOADER ──────────────────────────
+var MSGS = [
+  'Sistemler Hazırlanıyor',
+  'Telemetri Bağlanıyor',
+  'Yarış Stratejisi Yükleniyor',
+  'DRS Aktifleştiriliyor',
+  'Son Virajdan Çıkılıyor',
+  'Finişe Yaklaşılıyor'
+];
 
-    function isBirthday(d){
-      // d: Date
-      return (d.getDate() === BIRTH_DAY) && ((d.getMonth()+1) === BIRTH_MONTH);
-    }
+var pct = 0, msgIdx = 0;
+var roadFill  = document.getElementById('road-fill');
+var progFill  = document.getElementById('prog-fill');
+var progPct   = document.getElementById('prog-pct');
+var progStat  = document.getElementById('prog-status');
+var progMsg   = document.getElementById('prog-msg');
+var car       = document.getElementById('f1car');
+var speedLines= document.getElementById('speed-lines');
 
-    function calcAge(d){
-      // Standart yaş hesabı: doğum gününe girmediyse -1
-      const y = d.getFullYear();
-      let age = y - BIRTH_YEAR;
-      const beforeBirthday =
-        (d.getMonth()+1 < BIRTH_MONTH) ||
-        ((d.getMonth()+1 === BIRTH_MONTH) && (d.getDate() < BIRTH_DAY));
-      if (beforeBirthday) age -= 1;
-      return age;
-    }
+function setP(p) {
+  roadFill.style.width  = p + '%';
+  progFill.style.width  = p + '%';
+  progPct.textContent   = Math.round(p);
+  car.style.left        = Math.max(0, p - 2) + '%';
+  speedLines.style.left = Math.max(0, p - 2) + '%';
+}
 
-    function formatDateTR(d){
-      return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
-    }
+function loaderStep() {
+  if (pct >= 100) {
+    setP(100);
+    progStat.textContent = 'Finişe Ulaşıldı ✦';
+    setTimeout(revealSite, 950);
+    return;
+  }
+  var inc = Math.random() * 3.5 + 0.6;
+  pct = Math.min(100, pct + inc);
+  setP(pct);
 
-    /**********************
-     * 4) Intro loader (random progress + car move)
-     **********************/
-    const intro = document.getElementById("intro");
-    const main = document.getElementById("main");
-    const fill = document.getElementById("fill");
-    const pctEl = document.getElementById("pct");
-    const track = document.getElementById("track");
-    const car = document.getElementById("car");
-    const loaderMsg = document.getElementById("loaderMsg");
+  var ni = Math.min(MSGS.length - 1, Math.floor(pct / 17));
+  if (ni !== msgIdx) {
+    msgIdx = ni;
+    progStat.textContent = MSGS[msgIdx];
+    progMsg.classList.remove('lit');
+    void progMsg.offsetWidth;
+    progMsg.textContent = MSGS[msgIdx] + '...';
+    progMsg.classList.add('lit');
+  }
 
-    const msgs = [
-      "Lastikler ısınıyor…",
-      "DRS açıldı…",
-      "Pit stop temiz…",
-      "Süspansiyon ayarı…",
-      "Telemetri geliyor…",
-      "Finişe kilitlen…"
-    ];
+  var d;
+  if      (pct < 12) d = Math.random()*50+30;
+  else if (pct < 35) d = Math.random()*150+100;
+  else if (pct < 60) d = Math.random()*180+120;
+  else if (pct < 80) d = Math.random()*130+80;
+  else               d = Math.random()*60+30;
+  setTimeout(loaderStep, d);
+}
 
-    function setLoaderMsg(){
-      loaderMsg.textContent = msgs[Math.floor(Math.random()*msgs.length)];
-    }
+setTimeout(loaderStep, 1400);
 
-    function animateLoader(){
-      let p = 0;
-      setLoaderMsg();
+function revealSite() {
+  var loader = document.getElementById('loader');
+  loader.style.transition = 'opacity 1.1s ease';
+  loader.style.opacity = '0';
+  setTimeout(function(){
+    loader.style.display = 'none';
+    document.getElementById('main-site').classList.add('visible');
+    document.getElementById('settings-btn').style.display = 'flex';
+    initObserver();
+    checkBirthday();
+  }, 1100);
+}
 
-      const trackRect = () => track.getBoundingClientRect();
-      const maxX = () => Math.max(0, trackRect().width - 18 - 74 - 30); // left padding - car width - finish offset feel
-
-      const step = () => {
-        // Random ama kontrollü artış (sıçrama gibi)
-        const jump = Math.random() * 6.5 + 1.8; // 1.8 - 8.3
-        const slowDown = Math.max(0.35, 1 - (p/120)); // sona yaklaşınca yavaşla
-        p = Math.min(100, p + jump * slowDown);
-
-        fill.style.width = p.toFixed(1) + "%";
-        pctEl.textContent = Math.floor(p) + "%";
-        fill.parentElement.setAttribute("aria-valuenow", Math.floor(p));
-
-        // Car move: translateX based on p
-        const x = (p/100) * maxX();
-        car.style.transform = `translate(${x}px, -50%)`;
-
-        if (Math.random() < 0.22) setLoaderMsg();
-
-        if (p >= 100){
-          // finish
-          setTimeout(() => {
-            intro.classList.add("hidden");
-            main.classList.add("ready");
-            // slight nudge, ensure it is in place
-            car.style.transform = `translate(${maxX()}px, -50%)`;
-          }, 450);
-          return;
-        }
-
-        // next tick: random time
-        const t = Math.random() * 140 + 40; // 40 - 180ms
-        setTimeout(step, t);
-      };
-
-      setTimeout(step, 350);
-    }
-
-    /**********************
-     * 5) Birthday popup + confetti
-     **********************/
-    const bday = document.getElementById("bday");
-    const bdayTitle = document.getElementById("bdayTitle");
-    const bdayBody = document.getElementById("bdayBody");
-    const bdayClose = document.getElementById("bdayClose");
-    const confettiCanvas = document.getElementById("confetti");
-    const ctx = confettiCanvas.getContext("2d");
-
-    function resizeConfetti(){
-      confettiCanvas.width = window.innerWidth * devicePixelRatio;
-      confettiCanvas.height = window.innerHeight * devicePixelRatio;
-      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-    }
-
-    let confettiPieces = [];
-    let confettiRun = false;
-    function rand(min,max){ return Math.random()*(max-min)+min; }
-
-    function launchConfetti(durationMs=4200){
-      resizeConfetti();
-      confettiCanvas.classList.add("show");
-      confettiRun = true;
-
-      const W = window.innerWidth;
-      const H = window.innerHeight;
-
-      const count = Math.floor(Math.min(280, Math.max(150, W/5)));
-      confettiPieces = Array.from({length:count}, () => ({
-        x: rand(0, W),
-        y: rand(-H, 0),
-        w: rand(6, 12),
-        h: rand(8, 16),
-        vx: rand(-1.8, 1.8),
-        vy: rand(2.2, 6.2),
-        rot: rand(0, Math.PI*2),
-        vr: rand(-0.15, 0.15),
-        // color: random pastel-ish via HSL
-        hue: Math.floor(rand(0, 360)),
-        alpha: rand(0.75, 0.95),
-      }));
-
-      const start = performance.now();
-      function frame(now){
-        if (!confettiRun) return;
-        const t = now - start;
-
-        ctx.clearRect(0,0,W,H);
-        for (const c of confettiPieces){
-          c.x += c.vx;
-          c.y += c.vy;
-          c.rot += c.vr;
-
-          // wrap
-          if (c.y > H + 30) { c.y = rand(-60, -10); c.x = rand(0, W); }
-          if (c.x < -30) c.x = W + 30;
-          if (c.x > W + 30) c.x = -30;
-
-          ctx.save();
-          ctx.translate(c.x, c.y);
-          ctx.rotate(c.rot);
-
-          ctx.globalAlpha = c.alpha;
-          ctx.fillStyle = `hsla(${c.hue}, 85%, 65%, ${c.alpha})`;
-          ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
-
-          ctx.restore();
-        }
-
-        if (t < durationMs){
-          requestAnimationFrame(frame);
-        } else {
-          stopConfetti();
-        }
-      }
-      requestAnimationFrame(frame);
-    }
-
-    function stopConfetti(){
-      confettiRun = false;
-      confettiCanvas.classList.remove("show");
-      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-    }
-
-    function showBirthday(d){
-      const age = calcAge(d);
-
-      bdayTitle.textContent = `Doğum günün kutlu olsun ${FULL_NAME}!`;
-      bdayBody.textContent =
-        `Bugün ${formatDateTR(d)} • ${FULL_NAME} artık ${age} yaşında. ` +
-        `Yeni yaşın daha hızlı, daha sağlam, daha “temiz tur” olsun. 🏁🎂`;
-
-      bday.classList.add("show");
-      launchConfetti(5200);
-    }
-
-    bdayClose.addEventListener("click", () => {
-      bday.classList.remove("show");
-      stopConfetti();
+// ── SCROLL OBSERVER ─────────────────
+function initObserver() {
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
     });
-    bday.addEventListener("click", (e) => {
-      if (e.target === bday){
-        bday.classList.remove("show");
-        stopConfetti();
-      }
+  }, { threshold: 0.12 });
+  document.querySelectorAll('[data-observe]').forEach(function(el){ io.observe(el); });
+}
+
+// ── BIRTHDAY ────────────────────────
+function checkBirthday() {
+  var now = new Date();
+  if (now.getMonth() === 4 && now.getDate() === 4) {
+    setTimeout(function(){
+      document.getElementById('bday-overlay').classList.add('active');
+      startConfetti();
+    }, 700);
+  }
+}
+function closeBday() {
+  var el = document.getElementById('bday-overlay');
+  el.style.transition = 'opacity .7s';
+  el.style.opacity = '0';
+  setTimeout(function(){ el.style.display='none'; el.style.opacity=''; }, 700);
+}
+
+function startConfetti() {
+  var canvas = document.getElementById('confetti-canvas');
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  var root = document.documentElement;
+  var h = getComputedStyle(root).getPropertyValue('--accent-h').trim() || '38';
+  var cols = [
+    'hsl('+h+',70%,50%)','hsl('+h+',60%,65%)','hsl('+h+',50%,78%)',
+    'hsl('+(+h+20)+',60%,55%)','#fff','hsl('+h+',80%,40%)'
+  ];
+  var pieces = [];
+  for (var i=0;i<200;i++) pieces.push({
+    x:Math.random()*canvas.width, y:Math.random()*-canvas.height,
+    w:Math.random()*9+4, h:Math.random()*14+6,
+    c:cols[Math.floor(Math.random()*cols.length)],
+    vx:(Math.random()-.5)*4, vy:Math.random()*4.5+2,
+    a:Math.random()*360, va:(Math.random()-.5)*8
+  });
+  var frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(function(p){
+      ctx.save();
+      ctx.translate(p.x+p.w/2,p.y+p.h/2);
+      ctx.rotate(p.a*Math.PI/180);
+      ctx.fillStyle=p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+      p.x+=p.vx; p.y+=p.vy; p.a+=p.va;
+      if(p.y>canvas.height){p.y=-20;p.x=Math.random()*canvas.width;}
     });
+    if(++frame<450) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
 
-    window.addEventListener("resize", () => {
-      if (confettiCanvas.classList.contains("show")) resizeConfetti();
+// ── EASTER EGG ──────────────────────
+var eggClicks = 0, eggTimer = null;
+function handleProfileClick() {
+  eggClicks++;
+  clearTimeout(eggTimer);
+  eggTimer = setTimeout(function(){ eggClicks=0; }, 2000);
+  if (eggClicks >= 5) { eggClicks=0; openEgg(); }
+}
+function openEgg() {
+  document.getElementById('egg-img').src = 'data:image/jpeg;base64,' + _wedding;
+  document.getElementById('egg-modal').classList.add('open');
+}
+function closeEgg() { document.getElementById('egg-modal').classList.remove('open'); }
+document.getElementById('egg-modal').addEventListener('click', function(e){ if(e.target===this)closeEgg(); });
+
+// ── SETTINGS ────────────────────────
+var settingsOpen = false;
+function toggleSettings() {
+  settingsOpen = !settingsOpen;
+  document.getElementById('settings-panel').classList.toggle('open', settingsOpen);
+  document.getElementById('settings-btn').classList.toggle('open', settingsOpen);
+}
+
+// Click outside to close
+document.addEventListener('click', function(e){
+  if (!settingsOpen) return;
+  var panel = document.getElementById('settings-panel');
+  var btn   = document.getElementById('settings-btn');
+  if (!panel.contains(e.target) && !btn.contains(e.target)) toggleSettings();
+});
+
+// ── PALETTES ────────────────────────
+var PALETTES = [
+  { name:'Altın',    ah:38,  as:75, al:42, bh:38,  bs:22, bl:97 },
+  { name:'Kırmızı', ah:4,   as:70, al:45, bh:10,  bs:18, bl:97 },
+  { name:'İndigo',  ah:240, as:65, al:52, bh:230, bs:20, bl:97 },
+  { name:'Yeşil',   ah:158, as:60, al:38, bh:150, bs:15, bl:97 },
+  { name:'Mor',     ah:280, as:60, al:48, bh:270, bs:18, bl:97 },
+  { name:'Pembe',   ah:340, as:65, al:52, bh:330, bs:18, bl:97 },
+  { name:'Teal',    ah:182, as:65, al:40, bh:180, bs:18, bl:97 },
+  { name:'Gece',    ah:220, as:20, al:50, bh:220, bs:10, bl:14 },
+];
+
+var activePalette = 0;
+
+(function buildPaletteGrid(){
+  var grid = document.getElementById('palette-grid');
+  PALETTES.forEach(function(p, i){
+    var sw = document.createElement('div');
+    sw.className = 'palette-swatch' + (i===0?' active':'');
+    sw.style.background = 'linear-gradient(135deg, hsl('+p.ah+','+p.as+'%,'+p.al+'%) 0%, hsl('+p.bh+','+p.bs+'%,'+p.bl+'%) 100%)';
+    sw.setAttribute('data-i', i);
+    sw.innerHTML = '<span>'+p.name+'</span>';
+    sw.addEventListener('click', function(){
+      applyPalette(i);
+      document.querySelectorAll('.palette-swatch').forEach(function(s){ s.classList.remove('active'); });
+      sw.classList.add('active');
     });
+    grid.appendChild(sw);
+  });
+})();
 
-    /**********************
-     * 6) Easter egg (5 hızlı tık)
-     **********************/
-    const avatar = document.getElementById("avatar");
-    const avatarBtn = document.getElementById("avatarBtn");
-    const egg = document.getElementById("egg");
-    const eggClose = document.getElementById("eggClose");
-    const weddingImg = document.getElementById("weddingImg");
+function applyPalette(i) {
+  activePalette = i;
+  var p = PALETTES[i];
+  var root = document.documentElement;
+  root.style.setProperty('--accent-h', p.ah);
+  root.style.setProperty('--accent-s', p.as+'%');
+  root.style.setProperty('--accent-l', p.al+'%');
+  root.style.setProperty('--bg-h', p.bh);
+  root.style.setProperty('--bg-s', p.bs+'%');
+  root.style.setProperty('--bg-l', p.bl+'%');
 
-    let clickCount = 0;
-    let clickTimer = null;
+  // Dark mode palette
+  if (p.bl < 30) {
+    root.style.setProperty('--text',   'hsl('+p.bh+',10%,90%)');
+    root.style.setProperty('--text2',  'hsl('+p.bh+',8%,72%)');
+    root.style.setProperty('--muted',  'hsl('+p.bh+',8%,50%)');
+    root.style.setProperty('--border', 'hsl('+p.bh+',12%,22%)');
+    root.style.setProperty('--card',   'hsl('+p.bh+',10%,16%)');
+    root.style.setProperty('--bg2',    'hsl('+p.bh+',10%,12%)');
+    root.style.setProperty('--shadow', 'rgba(0,0,0,.3)');
+  } else {
+    root.style.setProperty('--text',   'hsl(30,15%,12%)');
+    root.style.setProperty('--text2',  'hsl(30,10%,30%)');
+    root.style.setProperty('--muted',  'hsl(30,8%,55%)');
+    root.style.setProperty('--border', 'hsl('+p.bh+',14%,82%)');
+    root.style.setProperty('--card',   '#ffffff');
+    root.style.setProperty('--bg2',    'hsl('+p.bh+',14%,93%)');
+    root.style.setProperty('--shadow', 'rgba(80,55,10,.10)');
+  }
 
-    function openEgg(){
-      weddingImg.src = WEDDING_DATA_URL;
-      egg.classList.add("show");
-    }
-    function closeEgg(){
-      egg.classList.remove("show");
-    }
+  // sync sliders
+  document.getElementById('sl-hue').value = p.ah;
+  document.getElementById('sl-sat').value = p.as;
+  document.getElementById('sl-lit').value = p.al;
+  document.getElementById('sl-bgh').value = p.bh;
+  document.getElementById('sl-bgs').value = p.bs;
+  document.getElementById('sl-bgl').value = p.bl;
+  document.getElementById('lbl-hue').textContent = p.ah+'°';
+  document.getElementById('lbl-sat').textContent = p.as+'%';
+  document.getElementById('lbl-lit').textContent = p.al+'%';
+  document.getElementById('lbl-bgh').textContent = p.bh+'°';
+  document.getElementById('lbl-bgs').textContent = p.bs+'%';
+  document.getElementById('lbl-bgl').textContent = p.bl+'%';
+}
 
-    avatarBtn.addEventListener("click", () => {
-      clickCount++;
-      if (!clickTimer){
-        clickTimer = setTimeout(() => {
-          clickCount = 0;
-          clickTimer = null;
-        }, 1800); // 1.8 sn içinde 5 tık hedefi
-      }
-      if (clickCount >= 5){
-        clickCount = 0;
-        clearTimeout(clickTimer);
-        clickTimer = null;
-        openEgg();
-      }
-    });
+function applyHue(v)  { v=+v; document.documentElement.style.setProperty('--accent-h',v); document.getElementById('lbl-hue').textContent=v+'°'; }
+function applySat(v)  { v=+v; document.documentElement.style.setProperty('--accent-s',v+'%'); document.getElementById('lbl-sat').textContent=v+'%'; }
+function applyLit(v)  { v=+v; document.documentElement.style.setProperty('--accent-l',v+'%'); document.getElementById('lbl-lit').textContent=v+'%'; }
+function applyBgHue(v){ v=+v; document.documentElement.style.setProperty('--bg-h',v); document.getElementById('lbl-bgh').textContent=v+'°'; }
+function applyBgSat(v){ v=+v; document.documentElement.style.setProperty('--bg-s',v+'%'); document.getElementById('lbl-bgs').textContent=v+'%'; }
+function applyBgLit(v){ v=+v; document.documentElement.style.setProperty('--bg-l',v+'%'); document.getElementById('lbl-bgl').textContent=v+'%'; }
+function applyBrightness(v){ v=+v; document.documentElement.style.setProperty('--brightness',v/100); document.getElementById('lbl-br').textContent=v+'%'; }
+function applySatFilter(v){ v=+v; document.documentElement.style.setProperty('--saturation',v/100); document.getElementById('lbl-sat2').textContent=v+'%'; }
 
-    eggClose.addEventListener("click", closeEgg);
-    egg.addEventListener("click", (e) => { if (e.target === egg) closeEgg(); });
+function applyFont(name, btn) {
+  document.documentElement.style.setProperty('--font-display', "'"+name+"', serif");
+  document.querySelectorAll('.font-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
 
-    /**********************
-     * 7) Sayfa init
-     **********************/
-    const todayText = document.getElementById("todayText");
-    const agePill = document.getElementById("agePill");
-    const yearLine = document.getElementById("yearLine");
-
-    function init(){
-      // images
-      avatar.src = PROFILE_DATA_URL;
-
-      const now = new Date();
-      todayText.textContent = `${formatDateTR(now)} • Sistem hazır`;
-      yearLine.textContent = `Bu sayfa her 4 Mayıs otomatik kutlar. (Şu an: ${now.getFullYear()})`;
-
-      // age
-      const age = calcAge(now);
-      agePill.textContent = `Yaş: ${age}`;
-
-      // If birthday -> show popup + confetti
-      if (isBirthday(now)){
-        // küçük gecikme: introdan hemen sonra patlasın
-        setTimeout(() => showBirthday(now), 650);
-      }
-
-      // kick loader
-      animateLoader();
-    }
-
-    init();
-  </script>
+function resetTheme() {
+  var root = document.documentElement;
+  var props = ['--accent-h','--accent-s','--accent-l','--bg-h','--bg-s','--bg-l',
+    '--text','--text2','--muted','--border','--card','--bg2','--shadow',
+    '--brightness','--saturation','--font-display'];
+  props.forEach(function(p){ root.style.removeProperty(p); });
+  root.style.setProperty('--brightness','1');
+  root.style.setProperty('--saturation','1');
+  document.getElementById('sl-hue').value=38; document.getElementById('lbl-hue').textContent='38°';
+  document.getElementById('sl-sat').value=75; document.getElementById('lbl-sat').textContent='75%';
+  document.getElementById('sl-lit').value=42; document.getElementById('lbl-lit').textContent='42%';
+  document.getElementById('sl-bgh').value=38; document.getElementById('lbl-bgh').textContent='38°';
+  document.getElementById('sl-bgs').value=22; document.getElementById('lbl-bgs').textContent='22%';
+  document.getElementById('sl-bgl').value=97; document.getElementById('lbl-bgl').textContent='97%';
+  document.getElementById('sl-br').value=100;  document.getElementById('lbl-br').textContent='100%';
+  document.getElementById('sl-sat2').value=100; document.getElementById('lbl-sat2').textContent='100%';
+  document.querySelectorAll('.palette-swatch').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.palette-swatch')[0].classList.add('active');
+  document.querySelectorAll('.font-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.font-btn')[0].classList.add('active');
+}
+</script>
 </body>
-</html>
+</html>"""
+
+HTML = HTML.replace('PROFILE_PLACEHOLDER', PROFILE).replace('WEDDING_PLACEHOLDER', WEDDING)
+
+with open('/mnt/user-data/outputs/selim_final.html', 'w') as f:
+    f.write(HTML)
+
+print("Done:", len(HTML), "bytes")
