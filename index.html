@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mustafa Selim Tütüncü • Doğum Günü</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --panel:#101827;
+      --panel2:#0f172a;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --line:rgba(255,255,255,.10);
+      --accent:#60a5fa;
+      --accent2:#34d399;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 22px;
+      --max: 1050px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background:
+        radial-gradient(1000px 600px at 15% 10%, rgba(96,165,250,.20), transparent 60%),
+        radial-gradient(900px 500px at 85% 10%, rgba(52,211,153,.16), transparent 55%),
+        radial-gradient(1100px 700px at 50% 100%, rgba(255,255,255,.06), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit}
+    .wrap{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:28px 18px 60px;
+    }
+
+    /* ===== INTRO LOADER ===== */
+    .intro{
+      position:fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(1200px 700px at 50% 0%, rgba(96,165,250,.12), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.78)),
+        var(--bg);
+      z-index:50;
+    }
+    .intro.hidden{display:none}
+
+    .introCard{
+      width:min(860px, calc(100vw - 36px));
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      padding:24px 22px 18px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .introTop{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      padding-bottom:14px;
+      border-bottom:1px solid var(--line);
+    }
+    .introTitle{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .introTitle h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+      font-weight:650;
+    }
+    .introTitle p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.25);
+      padding:8px 10px;
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:var(--accent2);
+      box-shadow:0 0 0 6px rgba(52,211,153,.15);
+    }
+
+    .trackWrap{padding:18px 0 0}
+    .track{
+      position:relative;
+      height:120px;
+      border-radius:16px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 10px, transparent 10px 20px);
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .track::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(600px 200px at 50% 10%, rgba(96,165,250,.10), transparent 60%),
+        radial-gradient(700px 250px at 30% 100%, rgba(52,211,153,.08), transparent 55%);
+      pointer-events:none;
+    }
+    .lane{
+      position:absolute;
+      left:10px; right:10px;
+      top:50%;
+      height:0;
+      border-top:1px dashed rgba(255,255,255,.18);
+      transform:translateY(-50%);
+    }
+
+    .finish{
+      position:absolute;
+      top:0; right:18px;
+      width:26px; height:100%;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.78) 0 10px, rgba(0,0,0,.40) 10px 20px);
+      opacity:.75;
+      border-left:1px solid rgba(255,255,255,.20);
+      border-right:1px solid rgba(255,255,255,.08);
+    }
+
+    .car{
+      position:absolute;
+      left:18px;
+      top:50%;
+      transform:translateY(-50%);
+      width:74px;
+      height:34px;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+      will-change:transform;
+    }
+
+    .progressRow{
+      margin-top:14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .bar{
+      flex:1;
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      position:relative;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(96,165,250,.95), rgba(52,211,153,.92));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
+      transition: width .12s linear;
+    }
+    .pct{
+      width:62px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .hint{
+      margin:10px 2px 0;
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .hint span{opacity:.95}
+
+    /* ===== MAIN SITE ===== */
+    header{
+      margin-top:6px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .brand h2{
+      margin:0;
+      font-size:22px;
+      font-weight:760;
+      letter-spacing:.2px;
+    }
+    .brand p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+      max-width:70ch;
+    }
+    .mini{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--muted);
+      font-size:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.20);
+      padding:10px 12px;
+      border-radius:999px;
+    }
+
+    .grid{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:16px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .card .in{
+      padding:18px;
+    }
+    .cardTitle{
+      margin:0 0 8px 0;
+      font-size:13px;
+      letter-spacing:.25px;
+      color:var(--muted);
+      text-transform:uppercase;
+    }
+
+    .profileRow{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+    .avatarBtn{
+      border:0;
+      background:transparent;
+      padding:0;
+      cursor:pointer;
+    }
+    .avatar{
+      width:92px;height:92px;border-radius:50%;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      outline:none;
+    }
+    .who{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+    }
+    .who strong{
+      font-size:16px;
+      font-weight:760;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .who .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+    .pill{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.22);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+
+    .stats{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .stat{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:12px 12px;
+    }
+    .stat .k{
+      color:var(--muted);
+      font-size:11px;
+      letter-spacing:.25px;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .stat .v{
+      font-size:14px;
+      font-weight:720;
+      letter-spacing:.2px;
+    }
+    .stat .s{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .content{
+      display:grid;
+      gap:16px;
+    }
+    .hero{
+      padding:18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .hero h3{
+      margin:0;
+      font-size:18px;
+      font-weight:760;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      max-width:80ch;
+    }
+
+    .section{
+      padding:18px;
+      display:grid;
+      gap:12px;
+    }
+    .list{
+      display:grid;
+      gap:10px;
+    }
+    .item{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:12px;
+    }
+    .ico{
+      width:34px;height:34px;border-radius:12px;
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      flex:0 0 auto;
+    }
+    .item b{display:block;font-size:13px}
+    .item span{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin-top:3px}
+
+    footer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:12px;
+      opacity:.9;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    /* ===== BDAY MODAL + CONFETTI ===== */
+    .bday{
+      position:fixed;
+      inset:0;
+      display:none;
+      z-index:60;
+      background:rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .bday.show{display:flex}
+    .bdayCard{
+      width:min(720px, calc(100vw - 36px));
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .bdayCard .top{
+      padding:18px 18px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .bdayCard h4{
+      margin:0;
+      font-size:16px;
+      font-weight:820;
+      letter-spacing:.2px;
+    }
+    .closeBtn{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      border-radius:12px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-size:12px;
+    }
+    .bdayCard .body{
+      padding:16px 18px 18px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+    #confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:59;
+      display:none;
+    }
+    #confetti.show{display:block}
+
+    /* ===== EASTER EGG OVERLAY ===== */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      z-index:70;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.72);
+      backdrop-filter: blur(8px);
+      padding:18px;
+    }
+    .overlay.show{display:flex}
+    .overlayCard{
+      width:min(980px, calc(100vw - 36px));
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .overlayTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+    }
+    .overlayTop b{font-size:13px}
+    .overlayBody{
+      padding:12px;
+      display:grid;
+      gap:10px;
+    }
+    .overlayBody img{
+      width:100%;
+      height:auto;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    /* Subtle fade-in for main */
+    .main{
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .main.ready{
+      opacity:1;
+      transform:none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INTRO LOADER -->
+  <div class="intro" id="intro">
+    <div class="introCard" aria-label="Yükleme ekranı">
+      <div class="introTop">
+        <div class="introTitle">
+          <h1>Selim’in Pit Stop’u</h1>
+          <p>Formula modu açılıyor… araç finişe girince site açılacak.</p>
+        </div>
+        <div class="chip"><span class="dot"></span> Sistem kontrolü</div>
+      </div>
+
+      <div class="trackWrap">
+        <div class="track" id="track">
+          <div class="lane"></div>
+          <div class="finish" aria-hidden="true"></div>
+
+          <!-- Simple F1-ish SVG car with a tiny "F1" mark -->
+          <svg class="car" id="car" viewBox="0 0 180 80" xmlns="http://www.w3.org/2000/svg" aria-label="F1 araç">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1">
+                <stop offset="0" stop-color="rgba(96,165,250,.95)"/>
+                <stop offset="1" stop-color="rgba(52,211,153,.92)"/>
+              </linearGradient>
+            </defs>
+            <!-- rear wing -->
+            <rect x="18" y="22" width="22" height="22" rx="4" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.12)"/>
+            <rect x="12" y="18" width="10" height="30" rx="4" fill="rgba(0,0,0,.35)" />
+            <!-- body -->
+            <path d="M45 20 h58 c14 0 22 7 28 17 l18 0 c7 0 12 5 12 12s-5 12-12 12H46 c-10 0-18-8-18-18 0-11 8-23 17-23z"
+                  fill="url(#g)" stroke="rgba(255,255,255,.12)" stroke-width="2" />
+            <!-- cockpit -->
+            <path d="M78 28 c8-8 22-8 30 0 l6 10 H72z" fill="rgba(0,0,0,.35)" />
+            <!-- nose -->
+            <path d="M154 39 h16 c4 0 7 3 7 7s-3 7-7 7h-20z" fill="rgba(255,255,255,.12)" />
+            <!-- wheels -->
+            <circle cx="58" cy="62" r="12" fill="rgba(0,0,0,.65)" stroke="rgba(255,255,255,.18)"/>
+            <circle cx="130" cy="62" r="12" fill="rgba(0,0,0,.65)" stroke="rgba(255,255,255,.18)"/>
+            <!-- tiny logo -->
+            <text x="106" y="50" font-family="ui-sans-serif,system-ui" font-size="18" font-weight="800" fill="rgba(255,255,255,.88)">F1</text>
+          </svg>
+        </div>
+
+        <div class="progressRow">
+          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="fill" id="fill"></div>
+          </div>
+          <div class="pct" id="pct">0%</div>
+        </div>
+
+        <div class="hint">
+          <span>İpucu: Profil fotoğrafına birkaç kez tıkla 😉</span>
+          <span id="loaderMsg">Lastikler ısınıyor…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFETTI CANVAS -->
+  <canvas id="confetti"></canvas>
+
+  <!-- BIRTHDAY POPUP -->
+  <div class="bday" id="bday">
+    <div class="bdayCard" role="dialog" aria-modal="true" aria-label="Doğum günü kutlaması">
+      <div class="top">
+        <h4 id="bdayTitle">Doğum günün kutlu olsun!</h4>
+        <button class="closeBtn" id="bdayClose" type="button">Kapat</button>
+      </div>
+      <div class="body" id="bdayBody">
+        Bugün 4 Mayıs. Pit stop bitti: yeni yaş modu aktif. 🎉
+      </div>
+    </div>
+  </div>
+
+  <!-- EASTER EGG OVERLAY -->
+  <div class="overlay" id="egg">
+    <div class="overlayCard">
+      <div class="overlayTop">
+        <b>🕵️ Easter Egg</b>
+        <button class="closeBtn" id="eggClose" type="button">Kapat</button>
+      </div>
+      <div class="overlayBody">
+        <img id="weddingImg" alt="Gelin ve damat fotoğrafı" />
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="wrap main" id="main">
+    <header>
+      <div class="brand">
+        <h2>Mustafa Selim Tütüncü</h2>
+        <p>
+          Marmara Üniversitesi <b>Teknoloji Fakültesi</b> • <b>Bilgisayar Mühendisliği</b> (1. sınıf) •
+          Formula tutkusu: <span style="color:rgba(96,165,250,.95);font-weight:700">aktif</span>
+        </p>
+      </div>
+      <div class="mini" id="todayBadge" aria-label="Tarih ve durum">
+        <span>🗓️</span>
+        <span id="todayText">—</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Left -->
+      <div class="card">
+        <div class="in">
+          <div class="cardTitle">Profil</div>
+          <div class="profileRow">
+            <button class="avatarBtn" id="avatarBtn" title="Easter egg var…" aria-label="Profil fotoğrafı">
+              <img class="avatar" id="avatar" alt="Selim profil fotoğrafı" />
+            </button>
+
+            <div class="who">
+              <strong>Selim</strong>
+              <div class="meta">
+                <span class="pill" id="agePill">Yaş: —</span>
+                <span class="pill">F1 modu</span>
+                <span class="pill">Marmara</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="k">Okul</div>
+              <div class="v">Marmara Üniversitesi</div>
+              <div class="s">Teknoloji Fakültesi</div>
+            </div>
+            <div class="stat">
+              <div class="k">Bölüm</div>
+              <div class="v">Bilgisayar Mühendisliği</div>
+              <div class="s">1. sınıf</div>
+            </div>
+            <div class="stat">
+              <div class="k">Doğum günü</div>
+              <div class="v">4 Mayıs</div>
+              <div class="s">Her yıl otomatik kutlama</div>
+            </div>
+            <div class="stat">
+              <div class="k">Hedef</div>
+              <div class="v">Her sene seviye atla</div>
+              <div class="s">Kod + disiplin + tempo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="card content">
+        <div class="hero">
+          <h3>Bugünün modu: “Bir tık daha hızlı.”</h3>
+          <p>
+            Bu site her 4 Mayıs’ta otomatik olarak doğum günü mesajını açar ve yaş hesabını günceller.
+            Intro’daki Formula sahnesi bittikten sonra içerik görünür.
+          </p>
+        </div>
+
+        <div class="section">
+          <div class="cardTitle">Kısa notlar</div>
+          <div class="list">
+            <div class="item">
+              <div class="ico">🏁</div>
+              <div>
+                <b>F1 Intro</b>
+                <span>Yükleme barı random gider, araç finişe girince site açılır.</span>
+              </div>
+            </div>
+            <div class="item">
+              <div class="ico">🎂</div>
+              <div>
+                <b>4 Mayıs Kutlaması</b>
+                <span>Her 4 Mayıs girişte mesaj + konfeti patlar (otomatik).</span>
+              </div>
+            </div>
+            <div class="item">
+              <div class="ico">🧩</div>
+              <div>
+                <b>Easter Egg</b>
+                <span>Profil fotoğrafına 5 kez hızlı tıkla. (Kapatmak için “Kapat”)</span>
+              </div>
+            </div>
+          </div>
+
+          <footer>
+            <span>© Selim • Minimal, temiz, “cafcaf” yok.</span>
+            <span id="yearLine">—</span>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**********************
+     * 1) AYARLAR
+     **********************/
+    // Doğum yılı bilinmiyorsa burayı düzenle. (Örn: 2006)
+    const BIRTH_YEAR = 2006;      // <-- BURAYI SELİM'İN DOĞUM YILIYLA DEĞİŞTİR
+    const BIRTH_MONTH = 5;        // Mayıs
+    const BIRTH_DAY = 4;
+
+    // “Bugün doğum günü” mesajı tam ismiyle:
+    const FULL_NAME = "Mustafa Selim Tütüncü";
+
+    /**********************
+     * 2) GÖRSELLER (Base64)
+     **********************/
+    // Profil fotoğrafı (senin verdiğin tekli portre)
+    const PROFILE_DATA_URL =
+      "data:image/png;base64,${data_urls[0].split('base64,')[1]}";
+
+    // Gelin/damat fotoğrafı (easter egg)
+    const WEDDING_DATA_URL =
+      "data:image/png;base64,${data_urls[1].split('base64,')[1]}";
+
+    /**********************
+     * 3) Tarih/yaş hesabı
+     **********************/
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    function isBirthday(d){
+      // d: Date
+      return (d.getDate() === BIRTH_DAY) && ((d.getMonth()+1) === BIRTH_MONTH);
+    }
+
+    function calcAge(d){
+      // Standart yaş hesabı: doğum gününe girmediyse -1
+      const y = d.getFullYear();
+      let age = y - BIRTH_YEAR;
+      const beforeBirthday =
+        (d.getMonth()+1 < BIRTH_MONTH) ||
+        ((d.getMonth()+1 === BIRTH_MONTH) && (d.getDate() < BIRTH_DAY));
+      if (beforeBirthday) age -= 1;
+      return age;
+    }
+
+    function formatDateTR(d){
+      return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
+    }
+
+    /**********************
+     * 4) Intro loader (random progress + car move)
+     **********************/
+    const intro = document.getElementById("intro");
+    const main = document.getElementById("main");
+    const fill = document.getElementById("fill");
+    const pctEl = document.getElementById("pct");
+    const track = document.getElementById("track");
+    const car = document.getElementById("car");
+    const loaderMsg = document.getElementById("loaderMsg");
+
+    const msgs = [
+      "Lastikler ısınıyor…",
+      "DRS açıldı…",
+      "Pit stop temiz…",
+      "Süspansiyon ayarı…",
+      "Telemetri geliyor…",
+      "Finişe kilitlen…"
+    ];
+
+    function setLoaderMsg(){
+      loaderMsg.textContent = msgs[Math.floor(Math.random()*msgs.length)];
+    }
+
+    function animateLoader(){
+      let p = 0;
+      setLoaderMsg();
+
+      const trackRect = () => track.getBoundingClientRect();
+      const maxX = () => Math.max(0, trackRect().width - 18 - 74 - 30); // left padding - car width - finish offset feel
+
+      const step = () => {
+        // Random ama kontrollü artış (sıçrama gibi)
+        const jump = Math.random() * 6.5 + 1.8; // 1.8 - 8.3
+        const slowDown = Math.max(0.35, 1 - (p/120)); // sona yaklaşınca yavaşla
+        p = Math.min(100, p + jump * slowDown);
+
+        fill.style.width = p.toFixed(1) + "%";
+        pctEl.textContent = Math.floor(p) + "%";
+        fill.parentElement.setAttribute("aria-valuenow", Math.floor(p));
+
+        // Car move: translateX based on p
+        const x = (p/100) * maxX();
+        car.style.transform = `translate(${x}px, -50%)`;
+
+        if (Math.random() < 0.22) setLoaderMsg();
+
+        if (p >= 100){
+          // finish
+          setTimeout(() => {
+            intro.classList.add("hidden");
+            main.classList.add("ready");
+            // slight nudge, ensure it is in place
+            car.style.transform = `translate(${maxX()}px, -50%)`;
+          }, 450);
+          return;
+        }
+
+        // next tick: random time
+        const t = Math.random() * 140 + 40; // 40 - 180ms
+        setTimeout(step, t);
+      };
+
+      setTimeout(step, 350);
+    }
+
+    /**********************
+     * 5) Birthday popup + confetti
+     **********************/
+    const bday = document.getElementById("bday");
+    const bdayTitle = document.getElementById("bdayTitle");
+    const bdayBody = document.getElementById("bdayBody");
+    const bdayClose = document.getElementById("bdayClose");
+    const confettiCanvas = document.getElementById("confetti");
+    const ctx = confettiCanvas.getContext("2d");
+
+    function resizeConfetti(){
+      confettiCanvas.width = window.innerWidth * devicePixelRatio;
+      confettiCanvas.height = window.innerHeight * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    }
+
+    let confettiPieces = [];
+    let confettiRun = false;
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+
+    function launchConfetti(durationMs=4200){
+      resizeConfetti();
+      confettiCanvas.classList.add("show");
+      confettiRun = true;
+
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+
+      const count = Math.floor(Math.min(280, Math.max(150, W/5)));
+      confettiPieces = Array.from({length:count}, () => ({
+        x: rand(0, W),
+        y: rand(-H, 0),
+        w: rand(6, 12),
+        h: rand(8, 16),
+        vx: rand(-1.8, 1.8),
+        vy: rand(2.2, 6.2),
+        rot: rand(0, Math.PI*2),
+        vr: rand(-0.15, 0.15),
+        // color: random pastel-ish via HSL
+        hue: Math.floor(rand(0, 360)),
+        alpha: rand(0.75, 0.95),
+      }));
+
+      const start = performance.now();
+      function frame(now){
+        if (!confettiRun) return;
+        const t = now - start;
+
+        ctx.clearRect(0,0,W,H);
+        for (const c of confettiPieces){
+          c.x += c.vx;
+          c.y += c.vy;
+          c.rot += c.vr;
+
+          // wrap
+          if (c.y > H + 30) { c.y = rand(-60, -10); c.x = rand(0, W); }
+          if (c.x < -30) c.x = W + 30;
+          if (c.x > W + 30) c.x = -30;
+
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(c.rot);
+
+          ctx.globalAlpha = c.alpha;
+          ctx.fillStyle = `hsla(${c.hue}, 85%, 65%, ${c.alpha})`;
+          ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+
+          ctx.restore();
+        }
+
+        if (t < durationMs){
+          requestAnimationFrame(frame);
+        } else {
+          stopConfetti();
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function stopConfetti(){
+      confettiRun = false;
+      confettiCanvas.classList.remove("show");
+      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    }
+
+    function showBirthday(d){
+      const age = calcAge(d);
+
+      bdayTitle.textContent = `Doğum günün kutlu olsun ${FULL_NAME}!`;
+      bdayBody.textContent =
+        `Bugün ${formatDateTR(d)} • ${FULL_NAME} artık ${age} yaşında. ` +
+        `Yeni yaşın daha hızlı, daha sağlam, daha “temiz tur” olsun. 🏁🎂`;
+
+      bday.classList.add("show");
+      launchConfetti(5200);
+    }
+
+    bdayClose.addEventListener("click", () => {
+      bday.classList.remove("show");
+      stopConfetti();
+    });
+    bday.addEventListener("click", (e) => {
+      if (e.target === bday){
+        bday.classList.remove("show");
+        stopConfetti();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (confettiCanvas.classList.contains("show")) resizeConfetti();
+    });
+
+    /**********************
+     * 6) Easter egg (5 hızlı tık)
+     **********************/
+    const avatar = document.getElementById("avatar");
+    const avatarBtn = document.getElementById("avatarBtn");
+    const egg = document.getElementById("egg");
+    const eggClose = document.getElementById("eggClose");
+    const weddingImg = document.getElementById("weddingImg");
+
+    let clickCount = 0;
+    let clickTimer = null;
+
+    function openEgg(){
+      weddingImg.src = WEDDING_DATA_URL;
+      egg.classList.add("show");
+    }
+    function closeEgg(){
+      egg.classList.remove("show");
+    }
+
+    avatarBtn.addEventListener("click", () => {
+      clickCount++;
+      if (!clickTimer){
+        clickTimer = setTimeout(() => {
+          clickCount = 0;
+          clickTimer = null;
+        }, 1800); // 1.8 sn içinde 5 tık hedefi
+      }
+      if (clickCount >= 5){
+        clickCount = 0;
+        clearTimeout(clickTimer);
+        clickTimer = null;
+        openEgg();
+      }
+    });
+
+    eggClose.addEventListener("click", closeEgg);
+    egg.addEventListener("click", (e) => { if (e.target === egg) closeEgg(); });
+
+    /**********************
+     * 7) Sayfa init
+     **********************/
+    const todayText = document.getElementById("todayText");
+    const agePill = document.getElementById("agePill");
+    const yearLine = document.getElementById("yearLine");
+
+    function init(){
+      // images
+      avatar.src = PROFILE_DATA_URL;
+
+      const now = new Date();
+      todayText.textContent = `${formatDateTR(now)} • Sistem hazır`;
+      yearLine.textContent = `Bu sayfa her 4 Mayıs otomatik kutlar. (Şu an: ${now.getFullYear()})`;
+
+      // age
+      const age = calcAge(now);
+      agePill.textContent = `Yaş: ${age}`;
+
+      // If birthday -> show popup + confetti
+      if (isBirthday(now)){
+        // küçük gecikme: introdan hemen sonra patlasın
+        setTimeout(() => showBirthday(now), 650);
+      }
+
+      // kick loader
+      animateLoader();
+    }
+
+    init();
+  </script>
+</body>
+</html>
