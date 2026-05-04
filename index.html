@@ -1,9 +1,4 @@
-with open('/home/claude/profile_b64.txt') as f:
-    PROFILE = f.read().strip()
-with open('/home/claude/wedding_b64.txt') as f:
-    WEDDING = f.read().strip()
-
-HTML = r"""<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
@@ -1427,11 +1422,4 @@ function resetTheme() {
 }
 </script>
 </body>
-</html>"""
-
-HTML = HTML.replace('PROFILE_PLACEHOLDER', PROFILE).replace('WEDDING_PLACEHOLDER', WEDDING)
-
-with open('/mnt/user-data/outputs/selim_final.html', 'w') as f:
-    f.write(HTML)
-
-print("Done:", len(HTML), "bytes")
+</html>
