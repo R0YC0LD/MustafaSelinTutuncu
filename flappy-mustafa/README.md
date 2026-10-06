@@ -1,7 +1,7 @@
-# Flappy Mustafa
+# Flappy Adil Hoca
 
-Kafası kesilip kuş yapılmış Mustafa, bira şişelerinin arasından uçuyor. Android için hazır APK:
-**[FlappyMustafa.apk](FlappyMustafa.apk)** (≈250 KB, Android 5.0+).
+Kafası kesilip kuş yapılmış Adil Hoca, bira şişelerinin arasından uçuyor. Android için hazır APK:
+**[FlappyAdilHoca.apk](FlappyAdilHoca.apk)** (≈250 KB, Android 5.0+).
 
 Aynı oyun tarayıcıda da oynanır: `web/index.html`.
 

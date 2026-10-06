@@ -1,4 +1,4 @@
-/* Flappy Mustafa — bira şişeleri, sigara molası ve bol nazar boncuğu. */
+/* Flappy Adil Hoca — bira şişeleri, sigara molası ve bol nazar boncuğu. */
 'use strict';
 (function () {
   const $ = (id) => document.getElementById(id);

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Flappy Mustafa APK'sını Gradle olmadan, doğrudan Android SDK araçlarıyla derler.
+# Flappy Adil Hoca APK'sını Gradle olmadan, doğrudan Android SDK araçlarıyla derler.
 # Gerekenler: JDK 11+ (Java 8 bayt kodu üretilir), Android SDK (platforms;android-34 ve build-tools;35.0.0).
 # Not: build-tools 34'teki d8, JDK 21 javac'ın ürettiği isimsiz MethodParameters kayıtlarında çöküyor; 35+ kullanın.
 set -euo pipefail
@@ -9,7 +9,7 @@ BT="$SDK/build-tools/${BUILD_TOOLS:-35.0.0}"
 JAR="$SDK/platforms/android-34/android.jar"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 OUT="$ROOT/build"
-APK="$ROOT/FlappyMustafa.apk"
+APK="$ROOT/FlappyAdilHoca.apk"
 KS="$ROOT/android/flappy-mustafa.keystore"
 KS_PASS="${KS_PASS:-flappymustafa}"
 VERSION_CODE="${VERSION_CODE:-1}"
