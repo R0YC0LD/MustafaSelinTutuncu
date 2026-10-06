@@ -12,14 +12,14 @@ OUT="$ROOT/build"
 APK="$ROOT/FlappyAdilHoca.apk"
 KS="$ROOT/android/flappy-mustafa.keystore"
 KS_PASS="${KS_PASS:-flappymustafa}"
-VERSION_CODE="${VERSION_CODE:-1}"
-VERSION_NAME="${VERSION_NAME:-1.0}"
+VERSION_CODE="${VERSION_CODE:-2}"
+VERSION_NAME="${VERSION_NAME:-1.1}"
 
 rm -rf "$OUT"
 mkdir -p "$OUT/assets" "$OUT/gen" "$OUT/classes"
 
 echo "› varlıklar kopyalanıyor"
-cp "$ROOT/web/index.html" "$ROOT/web/game.js" "$ROOT/web/head.png" "$OUT/assets/"
+cp "$ROOT/web/index.html" "$ROOT/web/game.js" "$ROOT/web/sounds.js" "$ROOT/web/head.png" "$OUT/assets/"
 
 echo "› kaynaklar derleniyor (aapt2)"
 "$BT/aapt2" compile --dir "$ROOT/android/res" -o "$OUT/res.zip"

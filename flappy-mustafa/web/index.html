@@ -11,6 +11,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#10142b;touch-action
 body{font-family:system-ui,Roboto,"Segoe UI",Arial,sans-serif;color:#fff}
 #wrap{position:absolute;top:0;left:50%;transform:translateX(-50%);height:100%;overflow:hidden;background:#3aa9e6}
 #game{display:block;width:100%;height:100%}
+#fade{position:absolute;top:0;left:0;right:0;bottom:0;background:#0b0f24;opacity:0;pointer-events:none;z-index:5}
+#fade.go{animation:fadeio .5s ease-out}
+@keyframes fadeio{0%{opacity:.7}100%{opacity:0}}
 .hidden{display:none!important}
 .screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;text-align:center}
 .pe-none{pointer-events:none}
@@ -66,6 +69,8 @@ body{font-family:system-ui,Roboto,"Segoe UI",Arial,sans-serif;color:#fff}
 .medal-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
 .medal-wrap small{font-size:11px;font-weight:900;letter-spacing:.5px}
 .medal{width:72px;height:72px;border-radius:50%;border:4px solid rgba(74,42,7,.6);background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),rgba(0,0,0,.06) 60%),#e3cf99;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:rgba(74,42,7,.35);box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)}
+.medal{animation:medalpop .7s cubic-bezier(.2,1.6,.4,1) .45s both}
+@keyframes medalpop{from{transform:scale(0) rotate(-200deg)}to{transform:none}}
 .medal.bronze{background:radial-gradient(circle at 35% 30%,#ffd2a1,#c47a34 55%,#8a4b17);color:#5b2f0a}
 .medal.silver{background:radial-gradient(circle at 35% 30%,#ffffff,#c4ccd6 55%,#7d8796);color:#46505e}
 .medal.gold{background:radial-gradient(circle at 35% 30%,#fff7b8,#f2c032 55%,#b3800f);color:#7a5200}
@@ -74,6 +79,10 @@ body{font-family:system-ui,Roboto,"Segoe UI",Arial,sans-serif;color:#fff}
 .scores{display:flex;flex-direction:column;gap:6px;text-align:right}
 .scores div{font-size:13px;font-weight:900;letter-spacing:1px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 .scores b{font-size:34px;line-height:1;color:#fff;text-shadow:0 3px 0 #4a2a07,2px 2px 0 #4a2a07,-2px 2px 0 #4a2a07,2px -2px 0 #4a2a07,-2px -2px 0 #4a2a07}
+.rank{grid-column:1/3;font-size:14px;font-weight:700;background:rgba(74,42,7,.08);border-radius:10px;padding:6px 8px}
+.rank b{font-weight:900;color:#7a1410}
+.mrank{display:block;font-size:13px;color:#ffe082;margin-top:2px}
+.mrank:empty{display:none}
 .newrec{grid-column:1/3;justify-self:center;background:#e53935;color:#fff;font-weight:900;font-size:14px;padding:3px 12px;border-radius:999px;animation:pulse .7s ease-in-out infinite}
 @keyframes pulse{50%{transform:scale(1.1)}}
 .stats{grid-column:1/3;font-size:12.5px;font-weight:700;opacity:.9;border-top:2px dashed rgba(74,42,7,.25);padding-top:8px;display:flex;justify-content:space-around;gap:6px}
@@ -85,13 +94,15 @@ body{font-family:system-ui,Roboto,"Segoe UI",Arial,sans-serif;color:#fff}
 <div id="wrap">
   <canvas id="game"></canvas>
 
+  <div id="fade"></div>
+
   <button id="pauseBtn" class="hidden" aria-label="Duraklat"><i></i><i></i></button>
 
   <div id="menu" class="screen hidden">
     <div class="title outline"><span class="t1">FLAPPY</span><span class="t2">ADİL HOCA</span></div>
     <div class="tag">Bira şişelerinin arasından uç, sigarayı yak, 10 saniye dokunulmaz ol!</div>
     <div class="spacer"></div>
-    <div class="best">EN İYİ <b id="menuBest">0</b></div>
+    <div class="best">EN İYİ <b id="menuBest">0</b><span id="menuRank" class="mrank"></span></div>
     <button class="btn big green" id="playBtn">OYNA</button>
     <div class="row">
       <button class="btn" id="helpBtn">NASIL OYNANIR?</button>
@@ -132,12 +143,14 @@ body{font-family:system-ui,Roboto,"Segoe UI",Arial,sans-serif;color:#fff}
         <div>EN İYİ <b id="ovBest">0</b></div>
       </div>
       <div class="newrec hidden" id="newRec">YENİ REKOR!</div>
+      <div class="rank" id="ovRank"></div>
       <div class="stats" id="ovStats"></div>
     </div>
     <div class="row"><button class="btn big green" id="againBtn">TEKRAR</button></div>
     <button class="btn" id="overMenuBtn" style="margin-top:12px">ANA MENÜ</button>
   </div>
 </div>
+<script src="sounds.js"></script>
 <script src="game.js"></script>
 </body>
 </html>

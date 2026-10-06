@@ -54,83 +54,125 @@
     } catch (e) { /* yok say */ }
   }
 
-  // ───────────────────────── ses (WebAudio sentezi) ─────────────────────────
+  // ───────────────────────── ses: gerçek kayıtlar (Kenney, CC0) + birkaç sentez ─────────────────────────
   const Sfx = (function () {
-    let ac = null, master = null, noiseBuf = null;
+    let ac = null, master = null, noiseBuf = null, windSrc = null, windGain = null, windLevel = 0;
+    const bufs = {};
+    const VOL = 0.85;
     let muted = store.get('fm_mute', '0') === '1';
+    function decodeAll() {
+      const src = window.FM_SOUNDS || {};
+      Object.keys(src).forEach((name) => {
+        try {
+          const bin = atob(src[name]);
+          const arr = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          const p = ac.decodeAudioData(arr.buffer, (b) => { bufs[name] = b; }, () => { /* yok say */ });
+          if (p && p.catch) p.catch(() => { /* yok say */ });
+        } catch (e) { /* yok say */ }
+      });
+    }
     function init() {
       if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       try {
         ac = new AC();
+        const comp = ac.createDynamicsCompressor();
+        comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 4;
+        comp.attack.value = 0.003; comp.release.value = 0.15;
+        comp.connect(ac.destination);
         master = ac.createGain();
-        master.gain.value = muted ? 0 : 0.6;
-        master.connect(ac.destination);
-        noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+        master.gain.value = muted ? 0 : VOL;
+        master.connect(comp);
+        noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
         const d = noiseBuf.getChannelData(0);
         for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        decodeAll();
       } catch (e) { ac = null; }
     }
-    function env(g, t, vol, dur) {
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    function play(name, vol, rate, delay) {
+      const b = bufs[name];
+      if (!b) return;
+      const s = ac.createBufferSource(), g = ac.createGain();
+      s.buffer = b;
+      s.playbackRate.value = rate || 1;
+      g.gain.value = vol === undefined ? 1 : vol;
+      s.connect(g); g.connect(master);
+      s.start(ac.currentTime + (delay || 0));
     }
-    function tone(type, f0, f1, dur, vol, delay) {
-      const t = ac.currentTime + (delay || 0);
-      const o = ac.createOscillator(), g = ac.createGain();
-      o.type = type;
-      o.frequency.setValueAtTime(f0, t);
-      if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-      env(g, t, vol, dur);
-      o.connect(g); g.connect(master);
-      o.start(t); o.stop(t + dur + 0.03);
-    }
-    function noise(dur, vol, ftype, f0, f1, q, delay) {
-      const t = ac.currentTime + (delay || 0);
+    function noise(dur, vol, ftype, f0, f1, q, delay, attack) {
+      const t = ac.currentTime + (delay || 0), at = attack || 0.008;
       const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
       s.buffer = noiseBuf;
       f.type = ftype; f.Q.value = q || 1;
       f.frequency.setValueAtTime(f0, t);
       if (f1) f.frequency.exponentialRampToValueAtTime(f1, t + dur);
-      env(g, t, vol, dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + at);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       s.connect(f); f.connect(g); g.connect(master);
-      s.start(t, Math.random() * 0.4); s.stop(t + dur + 0.03);
+      s.start(t, Math.random()); s.stop(t + dur + 0.05);
     }
+    const one = (list) => list[(Math.random() * list.length) | 0];
+    const CLINKS = ['clink0', 'clink1', 'clink2', 'clink3', 'clink4'];
     const sounds = {
-      flap() { noise(0.12, 0.32, 'bandpass', 500, 1700, 1.3); },
-      point() { tone('sine', 880, 0, 0.09, 0.22); tone('sine', 1318, 0, 0.16, 0.2, 0.07); },
-      coin() { tone('square', 988, 0, 0.07, 0.09); tone('square', 1319, 0, 0.2, 0.09, 0.065); },
-      power() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone('triangle', f, 0, 0.14, 0.2, i * 0.055)); },
+      flap() { play(one(['flap1', 'flap2', 'flap3']), 0.5, rand(0.9, 1.15)); },
+      point() { play(one(CLINKS), 0.3, rand(1.0, 1.15)); },
+      coin() { play('coin', 0.55, rand(1.0, 1.12)); },
+      power() { play('power', 0.5); },
       lighter() {
-        noise(0.025, 0.7, 'highpass', 3500, 0, 0.7);
-        noise(0.06, 0.4, 'highpass', 2500, 0, 0.7, 0.09);
-        noise(0.55, 0.22, 'bandpass', 2600, 900, 0.9, 0.16);
-        tone('sine', 140, 70, 0.5, 0.06, 0.16);
+        play('zippo', 0.9);                                              // zippo kapağı + çark
+        noise(0.05, 0.3, 'highpass', 4500, 0, 0.7, 0.2, 0.002);           // çakmak taşı
+        noise(0.7, 0.3, 'bandpass', 650, 360, 0.6, 0.22, 0.04);           // alev
+        noise(0.75, 0.2, 'bandpass', 1300, 2100, 1.6, 0.62, 0.45);        // nefes çekme
+        noise(1.0, 0.13, 'bandpass', 1000, 650, 1.0, 1.55, 0.06);         // dumanı üfleme
       },
       glass() {
-        noise(0.22, 0.45, 'highpass', 2500, 7000, 0.6);
-        for (let i = 0; i < 6; i++) tone('sine', 2400 + Math.random() * 4200, 0, 0.12 + Math.random() * 0.25, 0.05, Math.random() * 0.09);
+        play(one(['shatter0', 'shatter1', 'shatter2', 'shatter4']), 0.9, rand(0.92, 1.08));
+        play('shatterm', 0.45, rand(0.95, 1.1), 0.04);
+        play(one(CLINKS), 0.3, rand(1.2, 1.5), 0.11);
       },
-      hit() { noise(0.25, 0.7, 'lowpass', 900, 90, 0.8); tone('square', 210, 55, 0.28, 0.18); },
-      die() { tone('sawtooth', 520, 110, 0.7, 0.1, 0.18); },
-      shield() { tone('sine', 1500, 500, 0.35, 0.25); tone('triangle', 2200, 900, 0.3, 0.1); noise(0.15, 0.3, 'highpass', 3000, 0, 0.7); },
-      near() { tone('triangle', 1200, 2100, 0.1, 0.14); },
-      bounce() { tone('sine', 300, 600, 0.12, 0.2); },
-      click() { tone('triangle', 660, 0, 0.05, 0.15); },
-      slow() { tone('sine', 600, 200, 0.6, 0.18); },
-      kebap() { [392, 523, 659].forEach((f, i) => tone('square', f, 0, 0.12, 0.08, i * 0.07)); },
-      record() { [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone('triangle', f, 0, 0.16, 0.18, i * 0.09)); },
+      hit() { play(one(['punch0', 'punch1']), 0.95); play('shatter0', 0.45, 0.8, 0.01); },
+      ground() { play('thud', 1); },
+      die() { noise(0.55, 0.16, 'bandpass', 1800, 450, 1.2, 0.05, 0.06); },
+      shield() { play('shield', 0.75); play('shatter2', 0.45, 1.2); },
+      near() { play('near', 0.5, rand(1.0, 1.1)); },
+      bounce() { play('bounce', 0.8); },
+      click() { play('click', 0.6); },
+      slow() { for (let i = 0; i < 4; i++) play(CLINKS[i], 0.28, 1.7 + Math.random() * 0.15, i * 0.11); },
+      magnet() { play('magnet', 0.5); },
+      ayran() { play('ayran', 0.6, 0.85); play('ayran', 0.6, 0.78, 0.17); },
+      kebap() { play('kebap', 0.8); play('kebap', 0.6, 1.1, 0.12); },
+      nazar() { play('power', 0.45); play('shield', 0.35, 1.3, 0.05); },
+      record() { play('bell', 0.6); play('bell', 0.5, 1.26, 0.22); play('bell', 0.5, 1.5, 0.44); },
+      medal() { play('bell', 0.35, 1.5); },
     };
     const api = { init, get muted() { return muted; } };
     Object.keys(sounds).forEach((k) => {
       api[k] = function () { if (!ac || muted) return; try { sounds[k](); } catch (e) { /* yok say */ } };
     });
+    // uçuş rüzgârı: hızla birlikte artan, sürekli alçak geçiren gürültü
+    api.wind = function (level) {
+      if (!ac) return;
+      if (Math.abs(level - windLevel) < 0.004) return;
+      windLevel = level;
+      try {
+        if (!windSrc) {
+          windSrc = ac.createBufferSource();
+          windSrc.buffer = noiseBuf; windSrc.loop = true;
+          const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 420; f.Q.value = 0.4;
+          windGain = ac.createGain(); windGain.gain.value = 0;
+          windSrc.connect(f); f.connect(windGain); windGain.connect(master);
+          windSrc.start();
+        }
+        windGain.gain.setTargetAtTime(level, ac.currentTime, 0.25);
+      } catch (e) { /* yok say */ }
+    };
     api.toggle = function () {
       muted = !muted;
       store.set('fm_mute', muted ? '1' : '0');
-      if (master) master.gain.value = muted ? 0 : 0.6;
+      if (master) master.gain.value = muted ? 0 : VOL;
       return muted;
     };
     api.suspend = function () { if (ac && ac.state === 'running') ac.suspend(); };
@@ -141,11 +183,11 @@
   // ───────────────────────── sabitler ─────────────────────────
   const LH = 640;                       // mantıksal yükseklik
   const GROUND_H = 92, GROUND_Y = LH - GROUND_H;
-  const GRAVITY = 1500, FLAP_V = -435, MAX_FALL = 660;
+  const GRAVITY = 1650, FLAP_V = -455, MAX_FALL = 720;
   const BW = 66, BSW = 74, BL = 560;    // şişe gövde genişliği, sprite genişliği, sprite boyu
   // şişe çarpışma bölümleri: [kapaktan uzaklık başı, sonu, yarı genişlik]
   const SEGS = [[0, 17, 16], [17, 58, 12.5], [58, 72, 19], [72, 86, 28], [86, 9999, 33]];
-  const SPACING = 236;
+  const SPACING = 222;
   const HEAD_H = 62;
   let HEAD_W = 34;
   const HIT_RX = 14.5, HIT_RY = 23.5;
@@ -163,13 +205,24 @@
   const ITEM_INFO = {
     coin: { name: 'Lira', desc: '+1 puan. Topla topla!', color: '#f2c032' },
     sigara: { name: 'Sigara', desc: '10 saniye dokunulmazlık! Şişeleri kırarak geç.', color: '#ff8a3d', dur: 10, banner: ['SİGARA MOLASI!', '10 saniye dokunulmaz'] },
-    nazar: { name: 'Nazar Boncuğu', desc: 'Bir çarpmayı affeder. Nazar değmesin!', color: '#2f6fe0', banner: ['NAZAR BONCUĞU', 'Bir çarpma hakkın var'] },
-    cay: { name: 'Çay', desc: '6 saniye ağır çekim. Keyfine bak.', color: '#d0451b', dur: 6, banner: ['ÇAY KEYFİ', 'Ağır çekim'] },
-    miknatis: { name: 'Mıknatıs', desc: '8 saniye boyunca liraları kendine çeker.', color: '#e53935', dur: 8, banner: ['MIKNATIS', 'Liralar sana gelsin'] },
-    ayran: { name: 'Ayran', desc: '7 saniye küçülürsün, aralardan rahat geçersin.', color: '#5bc0eb', dur: 7, banner: ['AYRAN!', 'Küçüldün'] },
-    kebap: { name: 'Şiş Kebap', desc: '+5 puan. Afiyet olsun!', color: '#a0522d', banner: ['ŞİŞ KEBAP', '+5 puan'] },
+    nazar: { name: 'Nazar Boncuğu', desc: 'Bir çarpmayı affeder (aynı anda tek boncuk). Nazar değmesin!', color: '#2f6fe0', banner: ['NAZAR BONCUĞU', 'Bir çarpma hakkın var'] },
+    cay: { name: 'Çay', desc: '5 saniye ağır çekim. Keyfine bak.', color: '#d0451b', dur: 5, banner: ['ÇAY KEYFİ', 'Ağır çekim'] },
+    miknatis: { name: 'Mıknatıs', desc: '6 saniye boyunca liraları kendine çeker.', color: '#e53935', dur: 6, banner: ['MIKNATIS', 'Liralar sana gelsin'] },
+    ayran: { name: 'Ayran', desc: '5 saniye küçülürsün, aralardan rahat geçersin.', color: '#5bc0eb', dur: 5, banner: ['AYRAN!', 'Küçüldün'] },
+    kebap: { name: 'Şiş Kebap', desc: '+3 puan. Afiyet olsun!', color: '#a0522d', banner: ['ŞİŞ KEBAP', '+3 puan'] },
   };
-  const POWER_WEIGHTS = [['sigara', 20], ['nazar', 22], ['cay', 18], ['miknatis', 18], ['ayran', 14], ['kebap', 8]];
+  // akademik unvanlar: [gereken skor, unvan]
+  const RANKS = [
+    [20, 'Öğrenci'], [50, 'Lisans Mezunu'], [80, 'Yüksek Lisans Öğrencisi'], [110, 'Yüksek Lisans Mezunu'],
+    [150, 'Doktora Öğrencisi'], [200, 'Dr.'], [250, 'Dr. Öğr. Üyesi'], [300, 'Doç. Dr.'], [400, 'Prof. Dr.'],
+    [500, 'Ordinaryüs Prof. Dr.'],
+  ];
+  function rankIndex(sc) {
+    let r = -1;
+    for (let i = 0; i < RANKS.length; i++) if (sc >= RANKS[i][0]) r = i;
+    return r;
+  }
+  const POWER_WEIGHTS = [['sigara', 14], ['nazar', 18], ['cay', 18], ['miknatis', 16], ['ayran', 16], ['kebap', 18]];
 
   // gökyüzü evreleri: gündüz, gün batımı, gece, şafak
   const PHASES = [
@@ -196,6 +249,8 @@
   let bottleSpr = [], groundSpr = null, groundW = 0, cloudSpr = [], coinSpr = null;
   let itemSpr = {}, glowGold = null, glowEmber = null, glowSun = null, glowSunset = null, puffSpr = null;
   let skyFar = null, skyMid = null, skyBush = null, skyWindows = null, stars = null;
+  let wingFront = null, wingBack = null;
+  const WING_W = 52, WING_H = 40, WING_RX = 48, WING_RY = 25;   // kanat sprite'ı ve kök noktası
 
   function buildHead() {
     const pad = headPad;
@@ -211,6 +266,34 @@
     g.imageSmoothingQuality = 'high';
     g.drawImage(headImg, pad, pad, HEAD_W, HEAD_H);
     headSpr = c;
+  }
+
+  function buildWing(fill, shade, line) {
+    const [c, g] = mk(WING_W, WING_H);
+    g.translate(WING_RX, WING_RY);
+    g.lineJoin = 'round';
+    // tüyler: [açı, boy, kalınlık] — kökten geriye doğru yelpaze
+    const fe = [[-2.68, 42, 7.5], [-2.86, 39, 7.2], [-3.04, 35, 6.8], [-3.22, 29, 6.2], [-3.4, 22, 5.6]];
+    const feather = (a, L, w, pad) => {
+      g.save(); g.rotate(a);
+      g.beginPath(); g.ellipse(L / 2, 0, L / 2 + pad, w / 2 + pad, 0, 0, TAU);
+      g.restore();
+    };
+    g.fillStyle = line;
+    fe.forEach((f) => { feather(f[0], f[1], f[2], 1.2); g.fill(); });
+    g.beginPath(); g.ellipse(-7, -1.5, 9.2, 6.7, -0.25, 0, TAU); g.fill();
+    fe.forEach((f, i) => {
+      feather(f[0], f[1], f[2], 0);
+      g.fillStyle = i % 2 ? shade : fill; g.fill();
+      g.save(); g.rotate(f[0]);
+      g.strokeStyle = 'rgba(120,130,150,0.55)'; g.lineWidth = 0.8;
+      g.beginPath(); g.moveTo(4, 0); g.lineTo(f[1] - 3, 0); g.stroke();
+      g.restore();
+    });
+    g.beginPath(); g.ellipse(-7, -1.5, 8, 5.5, -0.25, 0, TAU); g.fillStyle = fill; g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.7)';
+    g.beginPath(); g.ellipse(-8, -3.5, 4, 1.8, -0.25, 0, TAU); g.fill();
+    return c;
   }
 
   function buildBottle(v) {
@@ -543,6 +626,8 @@
       buildHead();
     }
     bottleSpr = VARIANTS.map(buildBottle);
+    wingFront = buildWing('#ffffff', '#e6ebf2', '#2a1608');
+    wingBack = buildWing('#c9d1dc', '#b3bdca', '#2a1608');
     buildGround();
     cloudSpr = [buildCloud(1, 90), buildCloud(2, 120), buildCloud(3, 70)];
     coinSpr = buildCoin();
@@ -577,7 +662,7 @@
   // ───────────────────────── oyun durumu ─────────────────────────
   let state = 'loading';        // loading | menu | ready | play | dying | over
   let paused = false, needRender = true;
-  const bird = { x: 100, y: 300, vy: 0, rot: 0, flapT: 0, scale: 1, dead: false, onGround: false };
+  const bird = { x: 100, y: 300, vy: 0, rot: 0, flapT: 0, scale: 1, dead: false, onGround: false, wingP: 0, wingA: 0.4, squash: 0 };
   const fx = { inv: 0, slow: 0, magnet: 0, mini: 0, shield: 0, grace: 0 };
   let pipes = [], items = [], parts = [], pops = [], banner = null;
   let score = 0, passed = 0, smashed = 0, coins = 0, nears = 0;
@@ -586,9 +671,10 @@
   let phaseV = 0, lastC = null, spawned = 0, sincePower = 0, deadT = 0;
   let shakeT = 0, shakeMag = 0, flashA = 0, smokeT = 0;
   let autopilot = false;
+  let hitStop = 0, scorePop = 0, shownScore = 0, streakT = 0, rank = -1, rankPop = 0;
 
-  function diff() { return Math.min(1, passed / 60); }
-  function speed() { return 150 + 72 * diff(); }
+  function diff() { return Math.min(1, passed / 45); }
+  function speed() { return 165 + 85 * diff(); }
 
   function resetRun() {
     pipes = []; items = []; parts = []; pops = []; banner = null;
@@ -596,7 +682,8 @@
     worldT = 0; timeScale = 1; lastC = null; spawned = 0; sincePower = 0; deadT = 0;
     fx.inv = fx.slow = fx.magnet = fx.mini = fx.shield = fx.grace = 0;
     bird.x = Math.max(84, W * 0.3); bird.y = 280; bird.vy = 0; bird.rot = 0; bird.scale = 1;
-    bird.dead = false; bird.onGround = false; bird.onGroundT = 0;
+    bird.dead = false; bird.onGround = false; bird.onGroundT = 0; bird.squash = 0;
+    hitStop = 0; scorePop = 0; shownScore = 0; rank = -1; rankPop = 0;
     phaseV = 0;
   }
 
@@ -608,7 +695,7 @@
     let total = 0;
     const list = POWER_WEIGHTS.filter((w) => {
       if (w[0] === 'sigara' && fx.inv > 0) return false;
-      if (w[0] === 'nazar' && fx.shield >= 2) return false;
+      if (w[0] === 'nazar' && fx.shield >= 1) return false;
       if (w[0] === 'cay' && fx.slow > 0) return false;
       if (w[0] === 'miknatis' && fx.magnet > 0) return false;
       if (w[0] === 'ayran' && fx.mini > 0) return false;
@@ -622,17 +709,17 @@
 
   function spawnPipe(x) {
     const d = diff();
-    const gap = 202 - 48 * d;
+    const gap = 176 - 40 * d;
     const minC = 66 + gap / 2, maxC = GROUND_Y - 58 - gap / 2;
-    let c = lastC === null ? (minC + maxC) / 2 + rand(-40, 40) : lastC + rand(-165, 165);
+    let c = lastC === null ? (minC + maxC) / 2 + rand(-40, 40) : lastC + rand(-185, 185);
     c = clamp(c, minC, maxC);
     let amp = 0;
-    if (spawned >= 14 && Math.random() < 0.2 + 0.35 * d) {
-      amp = 20 + 28 * d;
+    if (spawned >= 8 && Math.random() < 0.25 + 0.45 * d) {
+      amp = 22 + 34 * d;
       c = clamp(c, minC + amp, maxC - amp);
     }
     const p = {
-      x, c, gap, amp, ph: Math.random() * TAU, freq: 1.4 + Math.random() * 0.8,
+      x, c, gap, amp, ph: Math.random() * TAU, freq: 1.5 + Math.random() * 1.0, wob: 0,
       vt: (Math.random() * VARIANTS.length) | 0, vb: (Math.random() * VARIANTS.length) | 0,
       passed: false, brokenT: 0, brokenB: 0, bonus: false, minClr: 999, hit: false,
     };
@@ -641,16 +728,16 @@
 
     // içerik: güç, lira veya hiçbir şey
     sincePower++;
-    const powerChance = spawned < 4 ? 0 : 0.08 + 0.035 * sincePower;
-    if (spawned === 4 || Math.random() < powerChance) {
-      const type = spawned === 4 ? 'sigara' : pickPower();
+    const powerChance = spawned < 6 ? 0 : 0.03 + 0.018 * sincePower;
+    if (spawned === 7 || Math.random() < powerChance) {
+      const type = spawned === 7 ? 'sigara' : pickPower();
       items.push({ type, x, y: 0, pipe: p, dy: 0, t: Math.random() * 5, free: false });
       sincePower = 0;
-    } else if (Math.random() < 0.36) {
+    } else if (Math.random() < 0.22) {
       items.push({ type: 'coin', x, y: 0, pipe: p, dy: 0, t: Math.random() * 5, free: false });
     }
     // borular arasında lira yayı
-    if (lastC !== null && spawned > 2 && Math.random() < 0.2) {
+    if (lastC !== null && spawned > 2 && Math.random() < 0.1) {
       const mx = x - SPACING / 2, my = (lastC + c) / 2;
       for (let i = -1; i <= 1; i++) items.push({ type: 'coin', x: mx + i * 28, y: my - (1 - Math.abs(i)) * 16, pipe: null, dy: 0, t: i, free: false });
     }
@@ -670,6 +757,33 @@
         s: 2 + Math.random() * 3, rot: Math.random() * TAU, vr: rand(-10, 10), c: color, g: kind === 'shard' ? 900 : 200 });
     }
   }
+  function addFeather(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      addPart({ k: 'feather', x: x + rand(-8, 8), y: y + rand(-8, 8), vx: rand(-140, 60), vy: rand(-160, 20), life: 0, max: 1.3 + Math.random() * 0.8,
+        s: 5 + Math.random() * 3, rot: Math.random() * TAU, vr: rand(-4, 4), c: '#ffffff', g: 140 });
+    }
+  }
+  function addDust(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      addPart({ k: 'puff', x: x + rand(-14, 14), y: y - 2, vx: rand(-90, 90), vy: rand(-60, -10), life: 0, max: 0.5 + Math.random() * 0.3,
+        s: 4 + Math.random() * 5, c: null, g: 60, rot: 0, vr: 0 });
+    }
+  }
+  function ring(x, y, color) {
+    addPart({ k: 'ring', x, y, vx: 0, vy: 0, life: 0, max: 0.45, s: 10, c: color, g: 0, rot: 0, vr: 0 });
+  }
+  function promote() {
+    rankPop = 1;
+    showBanner('TEBRİKLER!', RANKS[rank][1] + ' oldun', '#ffd54f');
+    banner.max = 2.4;
+    Sfx.record();
+    vibrate(40);
+    const cols = ['#ffd54f', '#e53935', '#43a047', '#1e88e5', '#ffffff', '#ab47bc'];
+    for (let i = 0; i < 40; i++) {
+      addPart({ k: 'confetti', x: bird.x + rand(-10, 10), y: bird.y - 40, vx: rand(-220, 220), vy: rand(-420, -120), life: 0, max: 1.6 + Math.random(),
+        s: 3 + Math.random() * 3, rot: Math.random() * TAU, vr: rand(-12, 12), c: cols[i % cols.length], g: 520 });
+    }
+  }
   function popup(text, x, y, color, size) {
     pops.push({ text, x, y, life: 0, max: 0.9, color: color || '#fff', size: size || 20 });
   }
@@ -683,7 +797,9 @@
     if (state !== 'play' || paused) return;
     bird.vy = FLAP_V;
     bird.flapT = 1;
+    bird.wingP = Math.PI / 2;     // tepeden aşağı vuruş başlasın
     Sfx.flap();
+    if (Math.random() < 0.3) addFeather(bird.x - 14 * bird.scale, bird.y, 1);
     for (let i = 0; i < 3; i++) {
       addPart({ k: 'puff', x: bird.x - 10 * bird.scale, y: bird.y + 14 * bird.scale, vx: rand(-90, -40), vy: rand(30, 90),
         life: 0, max: 0.35, s: 5 + Math.random() * 4, c: null, g: 0, rot: 0, vr: 0 });
@@ -703,6 +819,8 @@
       addPart({ k: 'foam', x: p.x + rand(-20, 20), y: y0 + (top ? -10 : 10), vx: rand(-60, 220), vy: rand(-260, 40), life: 0, max: 0.8,
         s: 2 + Math.random() * 3.5, c: '#fff8e1', g: 900, rot: 0, vr: 0 });
     }
+    addPart({ k: 'cap', x: p.x, y: y0, vx: rand(120, 260), vy: top ? rand(-60, 80) : rand(-380, -240), life: 0, max: 1.4,
+      s: 8, rot: Math.random() * TAU, vr: rand(-18, 18), c: v.cap[0], g: 1100 });
     Sfx.glass();
     vibrate(25);
     shake(5, 0.18);
@@ -718,12 +836,14 @@
     state = 'dying';
     bird.dead = true;
     deadT = 0;
-    Sfx.hit();
+    hitStop = 0.09;
     vibrate(ground ? 90 : 60);
-    shake(9, 0.35);
+    shake(10, 0.4);
     flashA = 0.85;
+    addFeather(bird.x, bird.y, 12);
     $('pauseBtn').classList.add('hidden');
-    if (!ground) { bird.vy = -220; Sfx.die(); } else { bird.onGround = true; bird.vy = 0; }
+    if (!ground) { bird.vy = -260; Sfx.hit(); Sfx.die(); }
+    else { bird.onGround = true; bird.vy = 0; bird.squash = 1; Sfx.ground(); addDust(bird.x, GROUND_Y, 10); }
   }
 
   function hitBottle(p, top) {
@@ -748,21 +868,22 @@
     if (it.type === 'coin') {
       score++; coins++;
       Sfx.coin();
-      popup('+1', it.x, it.y - 18, '#ffe082', 16);
       burst(it.x, it.y, 6, '#ffd54f', 'spark', 120);
+      addPart({ k: 'coinfly', x: it.x, y: it.y, vx: it.x, vy: it.y, life: 0, max: 0.45, s: 12, c: null, g: 0, rot: 0, vr: 0 });
       return;
     }
     burst(it.x, it.y, 16, info.color, 'spark', 200);
+    ring(it.x, it.y, info.color);
     switch (it.type) {
       case 'sigara':
         fx.inv = 10; Sfx.lighter(); vibrate(30);
         for (let i = 0; i < 10; i++) addPart({ k: 'smoke', x: bird.x + 16, y: bird.y + 10, vx: rand(-80, 20), vy: rand(-60, 10), life: 0, max: 1.2, s: 4 + Math.random() * 4, c: null, g: -20, rot: 0, vr: 0 });
         break;
-      case 'nazar': fx.shield = Math.min(2, fx.shield + 1); Sfx.power(); break;
-      case 'cay': fx.slow = 6; Sfx.slow(); break;
-      case 'miknatis': fx.magnet = 8; Sfx.power(); break;
-      case 'ayran': fx.mini = 7; Sfx.power(); break;
-      case 'kebap': score += 5; Sfx.kebap(); popup('+5', it.x, it.y - 20, '#ffcc80', 24); break;
+      case 'nazar': fx.shield = 1; Sfx.nazar(); break;
+      case 'cay': fx.slow = 5; Sfx.slow(); break;
+      case 'miknatis': fx.magnet = 6; Sfx.magnet(); break;
+      case 'ayran': fx.mini = 5; Sfx.ayran(); break;
+      case 'kebap': score += 3; Sfx.kebap(); popup('+3', it.x, it.y - 20, '#ffcc80', 24); break;
     }
     showBanner(info.banner[0], info.banner[1], info.color);
   }
@@ -800,8 +921,29 @@
   }
 
   // ───────────────────────── güncelleme ─────────────────────────
+  function updateWings(dt) {
+    let target;
+    if (state === 'dying') target = bird.onGround ? -0.5 : 0.9 + Math.sin(realT * 30) * 0.25;
+    else if (state === 'over') target = -0.5;
+    else {
+      const active = state !== 'play' || bird.flapT > 0 || bird.vy < 40;
+      bird.wingP += dt * (state !== 'play' ? 13 : bird.flapT > 0 ? 30 : bird.vy < 0 ? 17 : 4);
+      target = active ? Math.sin(bird.wingP) * 0.95 + 0.05 : 0.6 + Math.sin(bird.wingP) * 0.12;   // düşerken süzül
+    }
+    bird.wingA += (target - bird.wingA) * Math.min(1, dt * 28);
+    if (bird.squash > 0) bird.squash = Math.max(0, bird.squash - dt * 4);
+  }
+
   function update(dt) {
     realT += dt;
+    updateWings(dt);
+    if (scorePop > 0) scorePop = Math.max(0, scorePop - dt * 4);
+    if (shownScore !== score) { shownScore = score; scorePop = 1; }
+    if (rankPop > 0) rankPop = Math.max(0, rankPop - dt * 1.5);
+    if (state === 'play') {
+      const ri = rankIndex(score);
+      if (ri > rank) { rank = ri; promote(); }
+    }
     if (state === 'menu') {
       worldT += dt;
       groundX += 60 * dt; bgX += 60 * dt;
@@ -827,9 +969,15 @@
       if (!bird.onGround) {
         bird.vy = Math.min(MAX_FALL * 1.2, bird.vy + GRAVITY * dt);
         bird.y += bird.vy * dt;
-        bird.rot = Math.min(Math.PI / 2, bird.rot + dt * 5);
+        bird.rot += dt * 9;     // takla atarak düş
         const ry = HIT_RY * bird.scale;
-        if (bird.y + ry * 0.7 >= GROUND_Y) { bird.y = GROUND_Y - ry * 0.7; bird.onGround = true; shake(4, 0.15); Sfx.bounce(); }
+        if (bird.y + ry * 0.7 >= GROUND_Y) {
+          bird.y = GROUND_Y - ry * 0.7; bird.onGround = true; bird.squash = 1;
+          shake(5, 0.18); Sfx.ground(); vibrate(40); addDust(bird.x, GROUND_Y, 10);
+        }
+      } else {
+        const rest = Math.PI / 2 + TAU * Math.round((bird.rot - Math.PI / 2) / TAU);
+        bird.rot += (rest - bird.rot) * Math.min(1, dt * 14);
       }
       if (bird.onGround) {
         bird.onGroundT = (bird.onGroundT || 0) + dt;
@@ -868,7 +1016,7 @@
     // dünya
     const spd = speed();
     groundX += spd * g; bgX += spd * g;
-    for (const p of pipes) p.x -= spd * g;
+    for (const p of pipes) { p.x -= spd * g; if (p.wob > 0) p.wob = Math.max(0, p.wob - g * 2.2); }
     const last = pipes[pipes.length - 1];
     if (!last) spawnPipe(W + 110);
     else if (last.x < W + 40) spawnPipe(last.x + SPACING);
@@ -890,7 +1038,8 @@
         bird.y = GROUND_Y - h[1];
         bird.vy = FLAP_V * 0.95;
         Sfx.bounce();
-        burst(bird.x, GROUND_Y, 8, '#c8b89a', 'spark', 120);
+        bird.squash = 0.7;
+        addDust(bird.x, GROUND_Y, 6);
       } else {
         bird.y = GROUND_Y - h[1] * 0.7;
         die(true);
@@ -913,14 +1062,16 @@
         p.passed = true;
         passed++; score++;
         Sfx.point();
-        if (p.minClr < 7 && fx.inv <= 0 && fx.grace <= 0 && !p.bonus) {
+        if (p.minClr < 6 && fx.inv <= 0 && fx.grace <= 0 && !p.bonus) {
           score++; nears++;
+          p.wob = 1;
           popup('KIL PAYI! +1', bird.x, bird.y - 40, '#b9f6ca', 17);
           Sfx.near();
         }
         if (passed === 10 || passed === 25 || passed === 50 || passed === 100) {
           const names = { 10: 'BRONZ', 25: 'GÜMÜŞ', 50: 'ALTIN', 100: 'PLATİN' };
           showBanner(passed + ' ŞİŞE!', names[passed] + ' madalya yolda', '#ffe66d');
+          Sfx.medal();
         }
       }
     }
@@ -958,6 +1109,16 @@
       }
     }
 
+    // hız çizgileri (sigarada ve yüksek hızda)
+    if (fx.inv > 0 || diff() > 0.4) {
+      streakT -= g;
+      if (streakT <= 0) {
+        streakT = fx.inv > 0 ? 0.05 : 0.16 - diff() * 0.06;
+        addPart({ k: 'streak', x: W + 20, y: rand(20, GROUND_Y - 20), vx: -spd * 2.6, vy: 0, life: 0, max: 0.6,
+          s: 24 + Math.random() * 30, c: null, g: 0, rot: 0, vr: 0 });
+      }
+    }
+
     // gökyüzü evresi
     const phaseTarget = Math.floor(passed / 15);
     if (phaseV < phaseTarget) phaseV = Math.min(phaseTarget, phaseV + dt * 0.35);
@@ -973,6 +1134,14 @@
       const p = parts[i];
       p.life += dt;
       if (p.life >= p.max) continue;
+      if (p.k === 'coinfly') {
+        const t = smooth(p.life / p.max);
+        p.x = lerp(p.vx, W / 2, t); p.y = lerp(p.vy, 66, t) - Math.sin(t * Math.PI) * 40;
+        parts[j++] = p;
+        continue;
+      }
+      if (p.k === 'confetti') { p.vx *= 1 - dt * 1.8; if (p.vy > 90) p.vy = 90; }
+      if (p.k === 'feather') { p.vx *= 1 - dt * 2.2; if (p.vy > 40) p.vy = 40; p.x += Math.sin(p.life * 6 + p.rot) * 30 * dt; }
       p.vy += p.g * dt;
       p.x += p.vx * dt; p.y += p.vy * dt;
       p.rot += p.vr * dt;
@@ -1099,7 +1268,7 @@
 
   function drawPipe(p) {
     const c = pipeCenter(p), top = c - p.gap / 2, bot = c + p.gap / 2;
-    const x = p.x - BSW / 2;
+    const x = p.x - BSW / 2 + (p.wob > 0 ? Math.sin(worldT * 55) * 3 * p.wob : 0);
     const pxs = scale;
     // alt şişe (kapak yukarıda)
     {
@@ -1157,6 +1326,13 @@
       if (it.type === 'coin') {
         const sx = Math.abs(Math.cos(it.t * 3.2)) * 0.85 + 0.15;
         ctx.drawImage(coinSpr, it.x - 12 * sx, y - 12, 24 * sx, 24);
+        const gl = (it.t * 0.9 + it.x * 0.01) % 1.6;
+        if (gl < 0.25) {
+          ctx.globalAlpha = Math.sin(gl / 0.25 * Math.PI);
+          ctx.fillStyle = '#ffffff';
+          drawStar(it.x + 6, y - 7, 5);
+          ctx.globalAlpha = 1;
+        }
       } else {
         const pulse = 1 + Math.sin(it.t * 5) * 0.05;
         ctx.globalAlpha = 0.5 + Math.sin(it.t * 5) * 0.15;
@@ -1185,6 +1361,50 @@
           ctx.beginPath(); ctx.moveTo(-p.s, -p.s * 0.4); ctx.lineTo(p.s * 0.8, -p.s * 0.6); ctx.lineTo(p.s * 0.2, p.s * 0.7); ctx.closePath(); ctx.fill();
           ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(-p.s * 0.4, -p.s * 0.3, p.s * 0.6, p.s * 0.15);
           ctx.restore();
+          break;
+        case 'feather':
+          if (!front) continue;
+          ctx.globalAlpha = Math.min(1, a * 2);
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot + Math.sin(p.life * 6) * 0.6);
+          ctx.fillStyle = '#ffffff'; ctx.strokeStyle = 'rgba(80,90,110,0.7)'; ctx.lineWidth = 0.7;
+          ctx.beginPath(); ctx.ellipse(0, 0, p.s, p.s * 0.32, 0, 0, TAU); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-p.s * 1.2, 0); ctx.lineTo(p.s * 0.8, 0); ctx.stroke();
+          ctx.restore();
+          break;
+        case 'cap':
+          if (!front) continue;
+          ctx.globalAlpha = Math.min(1, a * 2);
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.scale(1, 0.45 + 0.55 * Math.abs(Math.cos(p.life * 9)));
+          ctx.fillStyle = p.c; ctx.strokeStyle = '#2b1503'; ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          for (let i = 0; i < 16; i++) { const r2 = i % 2 ? p.s : p.s * 0.82, an = i * TAU / 16; ctx.lineTo(Math.cos(an) * r2, Math.sin(an) * r2); }
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.restore();
+          break;
+        case 'confetti':
+          if (!front) continue;
+          ctx.globalAlpha = Math.min(1, a * 3);
+          ctx.fillStyle = p.c;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.scale(1, Math.cos(p.life * 11));
+          ctx.fillRect(-p.s, -p.s * 0.5, p.s * 2, p.s);
+          ctx.restore();
+          break;
+        case 'ring':
+          if (!front) continue;
+          ctx.globalAlpha = a;
+          ctx.strokeStyle = p.c; ctx.lineWidth = 4 * a + 1;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 10 + smooth(t) * 55, 0, TAU); ctx.stroke();
+          break;
+        case 'streak':
+          if (front) continue;
+          ctx.globalAlpha = 0.35 * Math.sin(t * Math.PI);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(p.x, p.y, p.s, 1.6);
+          break;
+        case 'coinfly':
+          if (!front) continue;
+          ctx.globalAlpha = 1;
+          { const sz = 24 * (1 - t * 0.5); ctx.drawImage(coinSpr, p.x - sz / 2, p.y - sz / 2, sz, sz); }
           break;
         case 'foam':
         case 'spark':
@@ -1219,12 +1439,15 @@
     ctx.save();
     ctx.translate(bird.x, bird.y);
     ctx.rotate(bird.rot);
-    const st = 1 + bird.flapT * 0.1;
+    const st = (1 + bird.flapT * 0.1) * (1 - bird.squash * 0.28);
     ctx.scale(s / Math.sqrt(st), s * st);
     if (blink) ctx.globalAlpha = 0.35;
     const pw = HEAD_W + headPad * 2, ph = HEAD_H + headPad * 2;
+    drawWing(wingBack, -0.3 * HEAD_W, -0.16 * HEAD_H, bird.wingA * 0.85 + 0.1, 0.85);
     ctx.drawImage(headSpr, -pw / 2, -ph / 2, pw, ph);
+    drawWing(wingFront, -0.43 * HEAD_W, 0.02 * HEAD_H, bird.wingA, 0.95);
 
+    if (rank >= 1 && (state === 'play' || state === 'dying' || state === 'over')) drawCap();
     const mx = (MOUTH[0] - 0.5) * HEAD_W, my = (MOUTH[1] - 0.5) * HEAD_H;
     if (fx.mini > 0) {
       // ayran bıyığı
@@ -1264,6 +1487,8 @@
       }
     }
 
+    if (rank >= 0 && (state === 'play' || state === 'dying')) drawRankLabel(s);
+
     // ölünce baş dönmesi yıldızları
     if (state === 'dying' || state === 'over') {
       if (bird.onGround) {
@@ -1274,6 +1499,62 @@
         }
       }
     }
+  }
+
+  function drawCap() {
+    // mezuniyet kepi: başın tepesinde, püskülü kanatla birlikte sallanır
+    const cx = 0.04 * HEAD_W, cy = -0.44 * HEAD_H;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-0.12);
+    ctx.fillStyle = '#1b1b24'; ctx.strokeStyle = '#000'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(10, 0); ctx.lineTo(9, 6); ctx.lineTo(-9, 6); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(19, -1.5); ctx.lineTo(0, 4); ctx.lineTo(-19, -1.5); ctx.closePath();
+    ctx.fillStyle = '#26262f'; ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(19, -1.5); ctx.lineTo(9, -1.2); ctx.closePath(); ctx.fill();
+    const sw = Math.sin(bird.wingP * 0.5) * 0.35 + bird.rot * -0.6;
+    const tas = rank >= 5 ? '#ffd54f' : '#e53935';
+    ctx.strokeStyle = tas; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(0, -1.5); ctx.lineTo(12, 0);
+    const ex = 12 + Math.sin(sw) * 8, ey = Math.cos(sw) * 10;
+    ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.fillStyle = tas; ctx.fillRect(ex - 1.6, ey, 3.2, 4.5);
+    ctx.beginPath(); ctx.arc(0, -1.5, 1.5, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawRankLabel(s) {
+    const title = RANKS[rank][1];
+    const top = rank === RANKS.length - 1;
+    const pop = rankPop > 0 ? 1 + Math.sin(rankPop * Math.PI) * 0.35 : 1;
+    ctx.font = '900 10.5px ' + FONT;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = ctx.measureText(title).width + 14;
+    // ekranın dışına taşmasın; yukarıda yer yoksa başın altına geç
+    let ly = bird.y - (HEAD_H * 0.62 + (rank >= 1 ? 12 : 4)) * s - 8;
+    if (ly < 14) ly = bird.y + HEAD_H * 0.62 * s + 10;
+    const lx = clamp(bird.x, w / 2 * pop + 4, W - w / 2 * pop - 4);
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.scale(pop, pop);
+    rr(ctx, -w / 2, -9, w, 18, 9);
+    ctx.fillStyle = top ? 'rgba(90,20,110,0.88)' : 'rgba(18,22,48,0.8)'; ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = top ? 'hsl(' + ((realT * 120) % 360).toFixed(0) + ',90%,65%)' : '#ffd54f';
+    ctx.stroke();
+    ctx.fillStyle = top ? '#fff6c2' : '#ffe082';
+    ctx.fillText(title, 0, 0.5);
+    ctx.restore();
+  }
+
+  function drawWing(spr, x, y, a, k) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a);
+    ctx.scale(k, k * (0.8 + 0.2 * Math.cos(a)));
+    ctx.drawImage(spr, -WING_RX, -WING_RY, WING_W, WING_H);
+    ctx.restore();
   }
 
   function drawStar(x, y, r) {
@@ -1299,15 +1580,18 @@
   function drawHUD() {
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if (state === 'play' || state === 'dying') {
-      outlinedText(String(score), W / 2, 66, 52, '#ffffff', '#3b2105', 8);
+      const sp = 1 + 0.28 * Math.sin(scorePop * Math.PI) * scorePop;
+      ctx.save(); ctx.translate(W / 2, 66); ctx.scale(sp, sp);
+      outlinedText(String(score), 0, 0, 52, '#ffffff', '#3b2105', 8);
+      ctx.restore();
     }
     // güç zamanlayıcıları
     if (state === 'play') {
       const list = [];
       if (fx.inv > 0) list.push(['sigara', fx.inv / 10, fx.inv]);
-      if (fx.slow > 0) list.push(['cay', fx.slow / 6, fx.slow]);
-      if (fx.magnet > 0) list.push(['miknatis', fx.magnet / 8, fx.magnet]);
-      if (fx.mini > 0) list.push(['ayran', fx.mini / 7, fx.mini]);
+      if (fx.slow > 0) list.push(['cay', fx.slow / 5, fx.slow]);
+      if (fx.magnet > 0) list.push(['miknatis', fx.magnet / 6, fx.magnet]);
+      if (fx.mini > 0) list.push(['ayran', fx.mini / 5, fx.mini]);
       if (fx.shield > 0) list.push(['nazar', 1, -fx.shield]);
       let x = 24;
       const y = 118;
@@ -1396,9 +1680,11 @@
       return;
     }
     if (dt > 0) {
+      if (hitStop > 0) { hitStop -= dt; dt = 0.0001; }
       const steps = Math.ceil(dt / (1 / 120));
       const h = dt / steps;
       for (let i = 0; i < steps; i++) update(h);
+      Sfx.wind(state === 'play' ? 0.05 + 0.07 * diff() + (fx.inv > 0 ? 0.03 : 0) : 0);
       if (shakeT > 0) shakeT -= dt; else shakeMag = 0;
       if (flashA > 0) flashA = Math.max(0, flashA - dt * 3);
     }
@@ -1411,18 +1697,27 @@
     screens.forEach((s) => $(s).classList.toggle('hidden', s !== id));
   }
 
+  function fade() {
+    const el = $('fade');
+    el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+  }
+
   function goMenu() {
+    fade();
     state = 'menu';
     paused = false;
     resetRun();
     bird.x = W / 2;
     $('menuBest').textContent = best;
+    const br = rankIndex(best);
+    $('menuRank').textContent = br >= 0 ? '🎓 ' + RANKS[br][1] : '';
     $('pauseBtn').classList.add('hidden');
     show('menu');
   }
 
   function startReady() {
     Sfx.init();
+    fade();
     resetRun();
     state = 'ready';
     paused = false;
@@ -1442,9 +1737,10 @@
     if (state === 'over') return;
     state = 'over';
     bird.onGroundT = 0;
+    banner = null;
     const isRecord = score > best;
     if (isRecord) { best = score; store.set('fm_best', best); }
-    $('ovScore').textContent = score;
+    countUp($('ovScore'), score);
     $('ovBest').textContent = best;
     $('newRec').classList.toggle('hidden', !isRecord);
     const medal = $('medal'), mn = $('medalName');
@@ -1456,11 +1752,24 @@
     else if (score >= 10) m = ['bronze', 'BRONZ', '★'];
     if (m) { medal.classList.add(m[0]); medal.textContent = m[2]; mn.textContent = m[1]; }
     else { medal.textContent = '?'; mn.textContent = (10 - score) + ' PUAN KALDI'; }
+    const ri = rankIndex(score);
+    $('ovRank').innerHTML = ri >= 0 ? '🎓 Unvan: <b>' + RANKS[ri][1] + '</b>'
+      : '🎓 <b>Öğrenci</b> olmak için ' + (RANKS[0][0] - score) + ' puan daha';
     $('ovStats').innerHTML =
       '<span><b>' + passed + '</b>şişe</span><span><b>' + smashed + '</b>kırılan</span><span><b>' + coins + '</b>lira</span><span><b>' + nears + '</b>kıl payı</span>';
     overShownAt = performance.now();
     show('over');
     if (isRecord && score > 0) Sfx.record();
+  }
+
+  function countUp(el, to) {
+    const t0 = performance.now(), dur = Math.min(900, 250 + to * 25);
+    el.textContent = '0';
+    (function tick(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      el.textContent = String(Math.round(to * smooth(t)));
+      if (t < 1 && state === 'over') requestAnimationFrame(tick); else el.textContent = String(to);
+    })(t0);
   }
 
   function pauseGame() {
@@ -1554,6 +1863,9 @@
     const li = document.createElement('li');
     li.innerHTML = '<div><b>Kıl payı</b><span>Şişeye çok yakın geçersen +1 bonus. Kırdığın her şişe de +1!</span></div>';
     ul.appendChild(li);
+    const li2 = document.createElement('li');
+    li2.innerHTML = '<div><b>🎓 Akademik kariyer</b><span>' + RANKS.map((r) => r[0] + ': ' + r[1]).join(' → ') + '</span></div>';
+    ul.appendChild(li2);
   }
 
   // test ve hata ayıklama için küçük bir kapı
@@ -1562,6 +1874,7 @@
     get fx() { return fx; }, get bird() { return bird; }, get pipes() { return pipes; }, get items() { return items; },
     set autopilot(v) { autopilot = !!v; }, give(type) { collect({ type, x: bird.x, y: bird.y }); },
     setPassed(n) { passed = n; phaseV = Math.floor(n / 15); },
+    addScore(n) { score += n; },
   };
 
   // ───────────────────────── başlat ─────────────────────────
